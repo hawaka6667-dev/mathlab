@@ -17,28 +17,28 @@
 
     <!-- 3-Mode Tab Switcher -->
     <div class="tab-group">
-      <button class="tab-btn active" data-tab="tab-superposition" data-term="superposition">🧬 分量叠加</button>
-      <button class="tab-btn" data-tab="tab-derivatives" data-term="derivatives">🔀 逐阶求导</button>
-      <button class="tab-btn" data-tab="tab-standard" data-term="standard">📈 基础单图</button>
+      <button class="tab-btn active" data-tab="tab-superposition" data-term="superposition" data-i18n="tabSuperposition">🧬 Superposition</button>
+      <button class="tab-btn" data-tab="tab-derivatives" data-term="derivatives" data-i18n="tabDerivatives">🔀 Derivatives Matrix</button>
+      <button class="tab-btn" data-tab="tab-standard" data-term="standard" data-i18n="tabStandard">📈 Standard Single Plot</button>
     </div>
 
     <!-- Explicit Form with Enter & Submit Button -->
     <form id="formulaForm" class="input-form">
       <span>Formula =</span>
-      <input type="text" id="exprInput" value="f(x) = x^2 + 4000/x" spellcheck="false" placeholder="输入公式或 LaTeX (按 Enter 或点 ↵ 绘制)...">
-      <button type="submit" class="btn btn-submit" id="btnSubmit" title="执行绘制 (Enter)">↵ 绘制</button>
-      <button type="button" class="btn btn-star" id="btnStar" title="收藏/取消收藏当前函数">☆ 收藏</button>
+      <input type="text" id="exprInput" value="f(x) = x^2 + 4000/x" spellcheck="false" data-i18n="placeholderExpr" placeholder="Enter formula, supports LaTeX, Unicode, Piecewise (e.g. x^2 + 4000/x, sin(x), x^3-3x)...">
+      <button type="submit" class="btn btn-submit" id="btnSubmit" data-i18n="btnSubmit" data-i18n-title="btnSubmitTitle" title="Execute Plot (Enter)">↵ Plot</button>
+      <button type="button" class="btn btn-star" id="btnStar" data-i18n-title="btnStarTitle" title="Bookmark / Unbookmark active function">☆ Bookmark</button>
     </form>
 
     <div class="status-readout">
-      <span id="activeInspect">Inspection: <b style="color: #64748b;">(Hover over plot)</b></span>
-      <button type="button" class="btn btn-ai" id="btnToggleAI" title="打开 NotebookLM 风格 Gemini AI 伴侣">🤖 AI 伴侣</button>
-      <button type="button" class="btn btn-console" id="btnToggleConsole" title="打开/折叠诊断控制台 (快捷键: ~)">📟 控制台 <span id="logBadge" class="log-badge">0</span></button>
-      <button type="button" class="btn btn-favs" id="btnOpenFavs" title="打开收藏夹">📑 收藏夹 (<span id="favCount">0</span>)</button>
-      <button type="button" class="btn btn-random" id="btnRandom" title="随机摇一个经典分析学/微积分函数 (快捷键: R)">🎲 随机摇函数</button>
-      <button type="button" class="btn" id="btnResetAll" title="重置全部视角为中心十字轴">🎯 Reset All</button>
-      <button type="button" class="btn" id="btnThemeToggle" title="切换皮肤主题 (暗夜/纯黑/学术白/深青) / Toggle Skin Theme">🎨 深邃暗夜 (默认)</button>
-      <button type="button" class="btn" id="btnLangToggle" title="切换术语语言 / Toggle Language (zh / en / zh-en)">🌐 Code-Switching (zh-en)</button>
+      <span id="activeInspect"><span data-i18n="inspectLabel">Inspection:</span> <b style="color: #64748b;" data-i18n="inspectHint">(Hover over plot)</b></span>
+      <button type="button" class="btn btn-ai" id="btnToggleAI" data-i18n="btnAI" data-i18n-title="btnAITitle" title="Open NotebookLM-style Gemini AI Copilot">🤖 AI Copilot</button>
+      <button type="button" class="btn btn-console" id="btnToggleConsole" data-i18n-title="btnConsoleTitle" title="Open/Collapse Diagnostic Console (Shortcut: ~)"><span data-i18n="btnConsole">📟 Console</span> <span id="logBadge" class="log-badge">0</span></button>
+      <button type="button" class="btn btn-favs" id="btnOpenFavs" data-i18n-title="btnFavsTitle" title="Open Mathematical Bookmarks"><span data-i18n="btnFavs">📑 Bookmarks</span> (<span id="favCount">0</span>)</button>
+      <button type="button" class="btn btn-random" id="btnRandom" data-i18n="btnRandom" data-i18n-title="btnRandomTitle" title="Roll a classic calculus benchmark (Shortcut: R)">🎲 Roll Function</button>
+      <button type="button" class="btn" id="btnResetAll" data-i18n="btnResetAll" data-i18n-title="btnResetAllTitle" title="Reset all viewports to coordinate origin">🎯 Reset All</button>
+      <button type="button" class="btn" id="btnThemeToggle" title="Toggle Skin Theme">🎨 Deep Dark (Default)</button>
+      <button type="button" class="btn" id="btnLangToggle" title="Toggle Language (en / zh / zh-en)">🌐 English (en)</button>
     </div>
   </header>
 
@@ -94,7 +94,7 @@
         <!-- Left: Superposition Composite Overlay -->
         <div class="super-overlay-card">
           <div class="panel-header" style="border-top: 2px solid var(--c0);">
-            <span class="panel-formula" id="formSuperOverlay" style="color: var(--c0);">f(x) [合成曲线 & 分量基底叠加]</span>
+            <span class="panel-formula" id="formSuperOverlay" style="color: var(--c0);">f(x) <span data-i18n="superOverlayTitle">[Composite Curve & Basis Superposition]</span></span>
             <div id="overlayLegend" style="font-size: 11px; margin-left: auto;"></div>
           </div>
           <div class="canvas-wrap">
@@ -113,7 +113,7 @@
   <!-- Favorites Drawer Modal -->
   <div id="favsModal">
     <div class="drawer-header">
-      <span>⭐ 我的数学收藏夹 (Favorites)</span>
+      <span data-i18n="favModalTitle">⭐ Mathematical Bookmarks</span>
       <button class="close-btn" id="btnCloseFavs">✕</button>
     </div>
     <div class="drawer-body" id="favsList"></div>
@@ -124,22 +124,22 @@
     <div class="console-header">
       <div class="console-title">
         <span class="dot-live"></span>
-        <b>MathLab HUD Diagnostics & Runtime Logger</b>
+        <b data-i18n="hudTitle">MathLab HUD Diagnostics & Runtime Logger</b>
         <span class="hud-pill" id="hudEngineStatus">AST: READY</span>
         <span class="hud-pill" id="hudActiveVar">Var: x</span>
       </div>
       <div class="console-tabs">
-        <button class="c-tab active" data-filter="ALL">全部 (All)</button>
-        <button class="c-tab" data-filter="AST">AST 符号树</button>
-        <button class="c-tab" data-filter="SOLVER">微积分求解</button>
-        <button class="c-tab" data-filter="API">网络请求</button>
-        <button class="c-tab" data-filter="ERRORS">错误/告警</button>
+        <button class="c-tab active" data-filter="ALL" data-i18n="hudTabAll">All Logs</button>
+        <button class="c-tab" data-filter="AST" data-i18n="hudTabAst">AST Syntax Tree</button>
+        <button class="c-tab" data-filter="SOLVER" data-i18n="hudTabSolver">Calculus Solver</button>
+        <button class="c-tab" data-filter="API" data-i18n="hudTabApi">Network API</button>
+        <button class="c-tab" data-filter="ERRORS" data-i18n="hudTabErrors">Errors / Warnings</button>
       </div>
       <div class="console-actions">
-        <button class="c-act-btn" id="btnRefreshLogs" title="从服务端同步最新日志">🔄 刷新</button>
-        <button class="c-act-btn" id="btnClearLogs" title="清空本地与服务端日志">🗑️ 清空</button>
-        <button class="c-act-btn" id="btnCopyLogs" title="复制当前过滤的日志到剪贴板">📋 复制</button>
-        <button class="c-close-btn" id="btnCloseConsole" title="关闭控制台 (~)">✕</button>
+        <button class="c-act-btn" id="btnRefreshLogs" data-i18n="hudRefresh" title="Refresh logs from server">🔄 Refresh</button>
+        <button class="c-act-btn" id="btnClearLogs" data-i18n="hudClear" title="Clear logs">🗑️ Clear</button>
+        <button class="c-act-btn" id="btnCopyLogs" data-i18n="hudCopy" title="Copy logs to clipboard">📋 Copy</button>
+        <button class="c-close-btn" id="btnCloseConsole" title="Close console (~)">✕</button>
       </div>
     </div>
     <div class="console-body" id="consoleBody"></div>
@@ -154,17 +154,17 @@
         <span class="ai-badge" id="aiStatusBadge">Gemini 3.8 Flash</span>
       </div>
       <div class="ai-header-actions">
-        <button class="ai-icon-btn" id="btnConfigKey" title="设置 Gemini API Key">🔑</button>
-        <button class="ai-icon-btn" id="btnCloseAI" title="关闭侧边栏">✕</button>
+        <button class="ai-icon-btn" id="btnConfigKey" title="Configure Gemini API Key">🔑</button>
+        <button class="ai-icon-btn" id="btnCloseAI" title="Close Sidecar">✕</button>
       </div>
     </div>
     
     <div class="ai-chat-thread" id="aiChatThread">
       <div class="ai-msg model">
         <div class="ai-msg-bubble">
-          <div class="ai-text-content">
-            👋 欢迎使用 <b>MathLab Gemini 智能伴侣</b>！<br>
-            您可直接用自然语言让我操纵画布、切换模态、解释加性/乘性基底或聚焦极值奇点。
+          <div class="ai-text-content" data-i18n="aiWelcome">
+            👋 Welcome to <b>MathLab Gemini AI Copilot</b>!<br>
+            Chat in natural language to manipulate viewports, switch tabs, compute Taylor series, or decompose basis wavelets.
           </div>
         </div>
       </div>
@@ -172,18 +172,18 @@
 
     <!-- Quick Prompts Toolbar -->
     <div class="ai-quick-prompts">
-      <div class="ai-quick-chip" data-prompt="计算当前函数的4阶泰勒展开式" data-term="taylor">✨ 4阶泰勒展开</div>
-      <div class="ai-quick-chip" data-prompt="求解当前函数的全部驻点、极值点与拐点" data-term="critical">🔍 极值与拐点求解</div>
-      <div class="ai-quick-chip" data-prompt="探测当前函数的水平、铅直与斜渐近线" data-term="asymptote">📐 探测全部渐近线</div>
-      <div class="ai-quick-chip" data-prompt="画 exp(-0.2*x)*sin(2*x) 阻尼振荡">🌊 阻尼波动衰减</div>
-      <div class="ai-quick-chip" data-prompt="画 x^2 + 4000/x 并分解基底">🧩 x^2 + 4000/x 分解</div>
-      <div class="ai-quick-chip" data-prompt="收藏当前函数">⭐ 存入收藏夹</div>
+      <div class="ai-quick-chip" data-prompt="计算当前函数的4阶泰勒展开式" data-term="taylor" data-i18n="chipTaylor">✨ Taylor Series (O4)</div>
+      <div class="ai-quick-chip" data-prompt="求解当前函数的全部驻点、极值点与拐点" data-term="critical" data-i18n="chipCritical">🔍 Extrema & Inflection</div>
+      <div class="ai-quick-chip" data-prompt="探测当前函数的水平、铅直与斜渐近线" data-term="asymptote" data-i18n="chipAsymptote">📐 Find Asymptotes</div>
+      <div class="ai-quick-chip" data-prompt="画 exp(-0.2*x)*sin(2*x) 阻尼振荡" data-i18n="chipWave">🌊 Damped Wave Decay</div>
+      <div class="ai-quick-chip" data-prompt="画 x^2 + 4000/x 并分解基底" data-i18n="chipDecomp">🧩 Decompose x^2 + 4000/x</div>
+      <div class="ai-quick-chip" data-prompt="收藏当前函数" data-i18n="chipBookmark">⭐ Save to Bookmarks</div>
     </div>
 
     <!-- AI Input Form -->
     <div class="ai-input-form">
-      <input type="text" id="aiInput" placeholder="向 Gemini 发送指令，操纵画布或数学解析..." autocomplete="off">
-      <button class="ai-send-btn" id="btnSendAI">发送</button>
+      <input type="text" id="aiInput" data-i18n="aiInputPlaceholder" placeholder="Send instruction to Gemini: manipulate plot, Taylor series, extrema..." autocomplete="off">
+      <button class="ai-send-btn" id="btnSendAI" data-i18n="btnSendAI">Send</button>
     </div>
   </div>
 
@@ -191,17 +191,17 @@
   <div id="apiKeyModal">
     <div class="api-key-card">
       <div class="api-key-header">
-        <span>🔑 配置 Gemini API Key</span>
+        <span data-i18n="apiKeyTitle">🔑 Configure Gemini API Key</span>
         <button class="close-btn" id="btnCloseKeyModal">✕</button>
       </div>
       <div class="api-key-body">
-        <p style="font-size:11px;color:#94a3b8;margin-bottom:8px;">
-          填入您的 Google Gemini API Key（本地私密保存于浏览器与运行时会话中，绝不上报第三方）。
+        <p data-i18n="apiKeyDesc" style="font-size:11px;color:#94a3b8;margin-bottom:8px;">
+          Enter your Google Gemini API Key (stored securely in browser session storage, never sent elsewhere).
         </p>
         <input type="password" id="apiKeyInput" placeholder="AIzaSy..." spellcheck="false">
       </div>
       <div class="api-key-footer">
-        <button class="btn" id="btnSaveKey" style="background:#7c3aed;color:#fff;border-color:#8b5cf6;">保存并生效</button>
+        <button class="btn" id="btnSaveKey" data-i18n="btnSaveKey" style="background:#7c3aed;color:#fff;border-color:#8b5cf6;">Save & Apply</button>
       </div>
     </div>
   </div>

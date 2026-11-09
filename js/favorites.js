@@ -151,8 +151,8 @@ function renderActiveCategoryList() {
       <div class="fav-title">${f.title || f.fn}</div>
       <div class="fav-fn">${f.fn}</div>
       <div class="fav-actions">
-        <button class="fav-btn-load" data-fn="${encodeURIComponent(f.fn)}">⚡ ${getLocale() === 'en' ? 'Plot' : '绘制'}</button>
-        <button class="fav-btn-del" data-fn="${encodeURIComponent(f.fn)}" title="删除">🗑️</button>
+        <button class="fav-btn-load" data-fn="${encodeURIComponent(f.fn)}">⚡ ${t('favPlotBtn')}</button>
+        <button class="fav-btn-del" data-fn="${encodeURIComponent(f.fn)}" title="${getLocale() === 'en' ? 'Delete' : '删除'}">🗑️</button>
       </div>
     `;
     favsList.appendChild(card);

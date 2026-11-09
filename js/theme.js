@@ -89,7 +89,7 @@ export function updateThemeButtonText() {
   const btn = document.getElementById('btnThemeToggle');
   if (!btn) return;
   const theme = getActiveTheme();
-  const locale = localStorage.getItem('mathlab_locale') || 'zh-en';
+  const locale = localStorage.getItem('mathlab_locale') || 'en';
   const name = theme.name[locale] || theme.name['zh-en'] || theme.id;
   btn.innerText = `🎨 ${name}`;
 }
