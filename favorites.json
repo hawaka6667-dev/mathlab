@@ -1,0 +1,32 @@
+[
+  {
+    "id": "fav-5",
+    "fn": "f(x) = \\exp(-1/x^2)",
+    "title": "f(x) = \\exp(-1/x^2)",
+    "createdAt": "2026-11-09"
+  },
+  {
+    "id": "fav-1",
+    "fn": "g(x) = \\begin{cases} x^2 \\sin\\left(\\frac{1}{x}\\right), & x \\neq 0 \\\\ 0, & x = 0 \\end{cases}",
+    "title": "狄利克雷/振荡夹逼定理 (Squeeze Theorem)",
+    "createdAt": "2026-11-09"
+  },
+  {
+    "id": "fav-2",
+    "fn": "f(h) = h^{-2}",
+    "title": "偶函数对称无穷间断点 (Even Asymptote)",
+    "createdAt": "2026-11-09"
+  },
+  {
+    "id": "fav-3",
+    "fn": "f(x) = 1 / \\sqrt{x}",
+    "title": "经典负分数幂曲线 (Inverse Sqrt)",
+    "createdAt": "2026-11-09"
+  },
+  {
+    "id": "fav-4",
+    "fn": "f(x) = x * \\exp(-x^2)",
+    "title": "高斯波包导数包络 (Gaussian Wavelet)",
+    "createdAt": "2026-11-09"
+  }
+]

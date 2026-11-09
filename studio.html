@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathLab | Standard, Derivatives & Superposition Engine</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --panel: #111827;
+      --panel-border: #1f2937;
+      --card-bg: #0c1220;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --c0: #38bdf8;
+      --c1: #10b981;
+      --c2: #a855f7;
+      --c3: #f59e0b;
+      --c4: #f43f5e;
+      --c5: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .brand {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--c0);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    .dot-live {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Tab Switcher */
+    .tab-group {
+      display: flex;
+      background: #0b0f19;
+      border: 1px solid #1f2937;
+      border-radius: 6px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .tab-btn.active {
+      background: #1e293b;
+      color: #38bdf8;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Input & Action Form */
+    .input-form {
+      display: flex;
+      align-items: center;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 3px 6px 3px 10px;
+      flex: 1;
+      max-width: 600px;
+      gap: 6px;
+    }
+    .input-form span {
+      font-family: ui-monospace, monospace;
+      color: var(--c0);
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    input[type="text"] {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      width: 100%;
+    }
+    .btn {
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: var(--text);
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .btn:hover { background: #374151; }
+
+    .btn-submit {
+      background: #0284c7;
+      border: 1px solid #38bdf8;
+      color: #fff;
+      font-weight: 600;
+      padding: 3px 10px;
+    }
+    .btn-submit:hover {
+      background: #0369a1;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    .btn-star {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #f59e0b;
+      padding: 3px 8px;
+    }
+    .btn-star:hover {
+      background: rgba(245, 158, 11, 0.25);
+    }
+    .btn-star.starred {
+      background: #f59e0b;
+      color: #0f172a;
+      font-weight: 700;
+      border-color: #fbbf24;
+    }
+
+    .btn-random {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(168, 85, 247, 0.15));
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #38bdf8;
+      font-weight: 600;
+    }
+    .btn-random:hover {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.3));
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .btn-favs {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      color: #c084fc;
+      font-weight: 600;
+    }
+    .btn-favs:hover {
+      background: rgba(168, 85, 247, 0.3);
+      border-color: #c084fc;
+    }
+
+    .btn-console {
+      background: rgba(14, 165, 233, 0.12);
+      border: 1px solid rgba(14, 165, 233, 0.4);
+      color: #38bdf8;
+      font-weight: 600;
+      position: relative;
+    }
+    .btn-console:hover {
+      background: rgba(14, 165, 233, 0.25);
+      border-color: #38bdf8;
+    }
+    .log-badge {
+      display: inline-block;
+      background: #1e293b;
+      color: #94a3b8;
+      border-radius: 10px;
+      padding: 0 5px;
+      font-size: 10px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+    .log-badge.has-error {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    /* MathLab In-App Diagnostics HUD / Console Drawer */
+    #consoleDrawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 250px;
+      background: rgba(6, 9, 19, 0.95);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid #1f2937;
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      transform: translateY(100%);
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6);
+    }
+    #consoleDrawer.open {
+      transform: translateY(0);
+    }
+    .console-header {
+      background: #0b1120;
+      border-bottom: 1px solid #1f2937;
+      padding: 5px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .console-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .console-title b { color: #f1f5f9; }
+    .hud-pill {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-family: ui-monospace, monospace;
+    }
+    .console-tabs {
+      display: flex;
+      gap: 3px;
+      background: #060913;
+      padding: 2px;
+      border-radius: 5px;
+      border: 1px solid #1e293b;
+    }
+    .c-tab {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .c-tab:hover { color: #fff; }
+    .c-tab.active { background: #1e293b; color: #38bdf8; font-weight: 600; }
+    .console-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .c-act-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .c-act-btn:hover { background: #334155; color: #fff; }
+    .c-close-btn {
+      background: transparent;
+      border: none;
+      color: #64748b;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .c-close-btn:hover { color: #fff; }
+    .console-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 12px;
+      font-family: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      background: #040711;
+    }
+    .log-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+    .log-time { color: #475569; white-space: nowrap; }
+    .log-lvl {
+      padding: 0 4px;
+      border-radius: 3px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .lvl-INFO { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .lvl-AST { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+    .lvl-MATH { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .lvl-WARN { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .lvl-ERROR { background: rgba(239, 68, 68, 0.2); color: #f87171; font-weight: 800; }
+    .log-cat { color: #64748b; font-weight: 600; white-space: nowrap; }
+    .log-msg { color: #e2e8f0; word-break: break-all; flex: 1; }
+
+    .status-readout {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Tab Views Container */
+    #tabViews {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: #060911;
+    }
+    .tab-content {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+    }
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Mode 1: Standard Plot (Single Fullscreen Canvas) */
+    #standardWrap {
+      flex: 1;
+      position: relative;
+      margin: 6px;
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* Mode 2: Derivatives (6-Grid Multi-Panel) */
+    #derivativesGrid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 6px;
+      padding: 6px;
+      overflow: hidden;
+    }
+    @media (max-width: 950px) {
+      #derivativesGrid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+      }
+    }
+
+    /* Mode 3: Superposition (Split View) */
+    #superpositionWrap {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 6px;
+      padding: 6px;
+      overflow: hidden;
+    }
+    @media (max-width: 950px) {
+      #superpositionWrap {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1.2fr 1fr;
+      }
+    }
+    .super-overlay-card {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .super-components-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 6px;
+      overflow-y: auto;
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+    .panel-card:hover {
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+    .panel-header {
+      padding: 4px 10px;
+      background: rgba(17, 24, 39, 0.85);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      flex-shrink: 0;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .panel-formula {
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.01em;
+    }
+    .canvas-wrap {
+      flex: 1;
+      position: relative;
+      cursor: crosshair;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Floating Cursor Tooltip */
+    .mouse-tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: #fff;
+      white-space: nowrap;
+      z-index: 20;
+      display: none;
+      transform: translate(12px, -24px);
+    }
+
+    /* Favorites Drawer Modal */
+    #favsModal {
+      position: fixed;
+      top: 0;
+      right: -380px;
+      width: 360px;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-left: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      transition: right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    #favsModal.open {
+      right: 0;
+    }
+    .drawer-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: #f3f4f6;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .fav-card {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .fav-card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(30, 41, 59, 0.9);
+    }
+    .fav-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #38bdf8;
+    }
+    .fav-fn {
+      font-family: ui-monospace, monospace;
+      font-size: 11px;
+      color: #cbd5e1;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 4px 6px;
+      border-radius: 4px;
+      word-break: break-all;
+    }
+    .fav-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .fav-btn-load {
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      padding: 2px 8px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .fav-btn-load:hover { background: #0369a1; }
+    .fav-btn-del {
+      background: transparent;
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 2px 6px;
+      font-size: 11px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .fav-btn-del:hover { background: rgba(239, 68, 68, 0.15); }
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .close-btn:hover { color: #fff; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="dot-live"></span>
+      <span>MathLab</span>
+      <span style="font-size: 11px; opacity: 0.6; font-family: monospace;">:8080</span>
+    </div>
+
+    <!-- 3-Mode Tab Switcher -->
+    <div class="tab-group">
+      <button class="tab-btn active" data-tab="tab-superposition">🧬 分量叠加</button>
+      <button class="tab-btn" data-tab="tab-derivatives">🔀 逐阶求导</button>
+      <button class="tab-btn" data-tab="tab-standard">📈 基础单图</button>
+    </div>
+
+    <!-- Explicit Form with Enter & Submit Button -->
+    <form id="formulaForm" class="input-form">
+      <span>Formula =</span>
+      <input type="text" id="exprInput" value="f(x) = x^2 + 4000/x" spellcheck="false" placeholder="输入公式或 LaTeX (按 Enter 或点 ↵ 绘制)...">
+      <button type="submit" class="btn btn-submit" id="btnSubmit" title="执行绘制 (Enter)">↵ 绘制</button>
+      <button type="button" class="btn btn-star" id="btnStar" title="收藏/取消收藏当前函数">☆ 收藏</button>
+    </form>
+
+    <div class="status-readout">
+      <span id="activeInspect">Inspection: <b style="color: #64748b;">(Hover over plot)</b></span>
+      <button type="button" class="btn btn-console" id="btnToggleConsole" title="打开/折叠诊断控制台 (快捷键: ~)">📟 控制台 <span id="logBadge" class="log-badge">0</span></button>
+      <button type="button" class="btn btn-favs" id="btnOpenFavs" title="打开收藏夹">📑 收藏夹 (<span id="favCount">0</span>)</button>
+      <button type="button" class="btn btn-random" id="btnRandom" title="随机摇一个经典分析学/微积分函数 (快捷键: R)">🎲 随机摇函数</button>
+      <button type="button" class="btn" id="btnResetAll" title="重置全部视角为中心十字轴">🎯 Reset All</button>
+    </div>
+  </header>
+
+  <!-- Tab Views Container -->
+  <div id="tabViews">
+
+    <!-- Mode 1: 基础单图 -->
+    <div class="tab-content" id="tab-standard">
+      <div id="standardWrap">
+        <div class="panel-header" style="border-top: 2px solid var(--c0);">
+          <span class="panel-formula" id="formStandard" style="color: var(--c0);">f(x)</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="cvStandard"></canvas>
+          <div class="mouse-tooltip" id="tipStandard"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode 2: 逐阶求导 (6-Grid Multi-Panel) -->
+    <div class="tab-content" id="tab-derivatives">
+      <div id="derivativesGrid">
+        <!-- 0: f(x) -->
+        <div class="panel-card" style="border-top: 2px solid var(--c0);">
+          <div class="panel-header"><span class="panel-formula" id="form0" style="color: var(--c0);">f(x)</span></div>
+          <div class="canvas-wrap"><canvas id="cv0"></canvas><div class="mouse-tooltip" id="tip0"></div></div>
+        </div>
+        <!-- 1: f'(x) -->
+        <div class="panel-card" style="border-top: 2px solid var(--c1);">
+          <div class="panel-header"><span class="panel-formula" id="form1" style="color: var(--c1);">f'(x)</span></div>
+          <div class="canvas-wrap"><canvas id="cv1"></canvas><div class="mouse-tooltip" id="tip1"></div></div>
+        </div>
+        <!-- 2: f''(x) -->
+        <div class="panel-card" style="border-top: 2px solid var(--c2);">
+          <div class="panel-header"><span class="panel-formula" id="form2" style="color: var(--c2);">f''(x)</span></div>
+          <div class="canvas-wrap"><canvas id="cv2"></canvas><div class="mouse-tooltip" id="tip2"></div></div>
+        </div>
+        <!-- 3: f'''(x) -->
+        <div class="panel-card" style="border-top: 2px solid var(--c3);">
+          <div class="panel-header"><span class="panel-formula" id="form3" style="color: var(--c3);">f'''(x)</span></div>
+          <div class="canvas-wrap"><canvas id="cv3"></canvas><div class="mouse-tooltip" id="tip3"></div></div>
+        </div>
+        <!-- 4: f⁽⁴⁾(x) -->
+        <div class="panel-card" style="border-top: 2px solid var(--c4);">
+          <div class="panel-header"><span class="panel-formula" id="form4" style="color: var(--c4);">f⁽⁴⁾(x)</span></div>
+          <div class="canvas-wrap"><canvas id="cv4"></canvas><div class="mouse-tooltip" id="tip4"></div></div>
+        </div>
+        <!-- 5: f⁽⁵⁾(x) -->
+        <div class="panel-card" style="border-top: 2px solid var(--c5);">
+          <div class="panel-header"><span class="panel-formula" id="form5" style="color: var(--c5);">f⁽⁵⁾(x)</span></div>
+          <div class="canvas-wrap"><canvas id="cv5"></canvas><div class="mouse-tooltip" id="tip5"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode 3: 分量叠加分析 -->
+    <div class="tab-content active" id="tab-superposition">
+      <div id="superpositionWrap">
+        <!-- Composite Overlay View -->
+        <div class="super-overlay-card" style="border-top: 2px solid var(--c0);">
+          <div class="panel-header">
+            <span class="panel-formula" id="formSuperOverlay" style="color: var(--c0);">合成函数与分量叠加 (Composite & Components Overlay)</span>
+            <span style="font-size:10px;color:#94a3b8;" id="overlayLegend"></span>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="cvOverlay"></canvas>
+            <div class="mouse-tooltip" id="tipOverlay"></div>
+          </div>
+        </div>
+
+        <!-- Standalone Components Grid -->
+        <div class="super-components-grid" id="compCardsContainer">
+          <!-- Dynamically generated component cards -->
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Favorites Drawer Modal -->
+  <div id="favsModal">
+    <div class="drawer-header">
+      <span>⭐ 我的数学收藏夹 (Favorites)</span>
+      <button class="close-btn" id="btnCloseFavs">✕</button>
+    </div>
+    <div class="drawer-body" id="favsList"></div>
+  </div>
+
+  <!-- MathLab In-App Diagnostics HUD / Console Drawer -->
+  <div id="consoleDrawer">
+    <div class="console-header">
+      <div class="console-title">
+        <span class="dot-live"></span>
+        <b>MathLab HUD Diagnostics & Runtime Logger</b>
+        <span class="hud-pill" id="hudEngineStatus">AST: READY</span>
+        <span class="hud-pill" id="hudActiveVar">Var: x</span>
+      </div>
+      <div class="console-tabs">
+        <button class="c-tab active" data-filter="ALL">全部 (All)</button>
+        <button class="c-tab" data-filter="AST">AST 符号树</button>
+        <button class="c-tab" data-filter="SOLVER">微积分求解</button>
+        <button class="c-tab" data-filter="API">网络请求</button>
+        <button class="c-tab" data-filter="ERRORS">错误/告警</button>
+      </div>
+      <div class="console-actions">
+        <button class="c-act-btn" id="btnRefreshLogs" title="从服务端同步最新日志">🔄 刷新</button>
+        <button class="c-act-btn" id="btnClearLogs" title="清空本地与服务端日志">🗑️ 清空</button>
+        <button class="c-act-btn" id="btnCopyLogs" title="复制当前过滤的日志到剪贴板">📋 复制</button>
+        <button class="c-close-btn" id="btnCloseConsole" title="关闭控制台 (~)">✕</button>
+      </div>
+    </div>
+    <div class="console-body" id="consoleBody">
+      <!-- High-density log rows injected here -->
+    </div>
+  </div>
+
+  <script>
+    const colors = ['#38bdf8', '#10b981', '#a855f7', '#f59e0b', '#f43f5e', '#6366f1'];
+    const compColors = ['#a855f7', '#10b981', '#f59e0b', '#f43f5e', '#ec4899', '#14b8a6'];
+
+    // DOM References
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const formulaForm = document.getElementById('formulaForm');
+    const exprInput = document.getElementById('exprInput');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const btnStar = document.getElementById('btnStar');
+    const btnOpenFavs = document.getElementById('btnOpenFavs');
+    const btnCloseFavs = document.getElementById('btnCloseFavs');
+    const favsModal = document.getElementById('favsModal');
+    const favsList = document.getElementById('favsList');
+    const favCount = document.getElementById('favCount');
+    const activeInspect = document.getElementById('activeInspect');
+    const btnResetAll = document.getElementById('btnResetAll');
+    const btnRandom = document.getElementById('btnRandom');
+
+    // Console & Diagnostics HUD References
+    const btnToggleConsole = document.getElementById('btnToggleConsole');
+    const consoleDrawer = document.getElementById('consoleDrawer');
+    const btnCloseConsole = document.getElementById('btnCloseConsole');
+    const consoleBody = document.getElementById('consoleBody');
+    const logBadge = document.getElementById('logBadge');
+    const hudEngineStatus = document.getElementById('hudEngineStatus');
+    const hudActiveVar = document.getElementById('hudActiveVar');
+    const btnRefreshLogs = document.getElementById('btnRefreshLogs');
+    const btnClearLogs = document.getElementById('btnClearLogs');
+    const btnCopyLogs = document.getElementById('btnCopyLogs');
+    const consoleTabs = document.querySelectorAll('.c-tab');
+
+    // Diagnostics Log Store
+    let localLogs = [];
+    let currentFilter = 'ALL';
+    let unreadErrors = 0;
+
+    function formatTime(d) {
+      const pad = n => String(n).padStart(2, '0');
+      return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${String(d.getMilliseconds()).padStart(3, '0')}`;
+    }
+
+    function addLog(level, category, message, meta) {
+      const timeStr = formatTime(new Date());
+      const entry = { time: timeStr, level, category, message, meta: meta || {} };
+      localLogs.push(entry);
+      if (localLogs.length > 300) localLogs.shift();
+
+      if (level === 'ERROR') {
+        unreadErrors++;
+        logBadge.classList.add('has-error');
+      }
+      logBadge.innerText = localLogs.length;
+
+      renderLogs();
+    }
+
+    function renderLogs() {
+      if (!consoleBody) return;
+      const filtered = localLogs.filter(item => {
+        if (currentFilter === 'ALL') return true;
+        if (currentFilter === 'ERRORS') return item.level === 'ERROR' || item.level === 'WARN';
+        return item.category === currentFilter || item.level === currentFilter;
+      });
+
+      consoleBody.innerHTML = filtered.map(item => `
+        <div class="log-row">
+          <span class="log-time">[${item.time}]</span>
+          <span class="log-lvl lvl-${item.level}">${item.level}</span>
+          <span class="log-cat">${item.category}:</span>
+          <span class="log-msg">${escapeHtml(item.message)}</span>
+        </div>
+      `).join('');
+
+      consoleBody.scrollTop = consoleBody.scrollHeight;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function openConsole() {
+      consoleDrawer.classList.add('open');
+      unreadErrors = 0;
+      logBadge.classList.remove('has-error');
+      renderLogs();
+    }
+
+    function toggleConsole() {
+      if (consoleDrawer.classList.contains('open')) {
+        consoleDrawer.classList.remove('open');
+      } else {
+        openConsole();
+      }
+    }
+
+    btnToggleConsole.addEventListener('click', toggleConsole);
+    btnCloseConsole.addEventListener('click', () => consoleDrawer.classList.remove('open'));
+
+    consoleTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        consoleTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.getAttribute('data-filter');
+        renderLogs();
+      });
+    });
+
+    btnClearLogs.addEventListener('click', () => {
+      localLogs = [];
+      logBadge.innerText = '0';
+      logBadge.classList.remove('has-error');
+      consoleBody.innerHTML = '<div style="color:#64748b;padding:8px;">(Logs cleared)</div>';
+      fetch('/api/logs/clear', { method: 'POST' }).catch(() => {});
+    });
+
+    btnRefreshLogs.addEventListener('click', () => {
+      fetch('/api/logs')
+        .then(r => r.json())
+        .then(serverEntries => {
+          if (Array.isArray(serverEntries)) {
+            serverEntries.forEach(se => {
+              if (!localLogs.some(l => l.message === se.message && l.category === se.category)) {
+                addLog(se.level || 'INFO', se.category || 'SERVER', se.message, se.meta);
+              }
+            });
+          }
+        })
+        .catch(err => addLog('WARN', 'LOGS', 'Failed to pull server logs: ' + err.message));
+    });
+
+    btnCopyLogs.addEventListener('click', () => {
+      const text = localLogs.map(l => `[${l.time}] [${l.level}] [${l.category}] ${l.message}`).join('\n');
+      navigator.clipboard.writeText(text).then(() => {
+        btnCopyLogs.innerText = '✓ 已复制';
+        setTimeout(() => { btnCopyLogs.innerText = '📋 复制'; }, 1500);
+      });
+    });
+
+    // Global Keybinding for Console (~ or `)
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === '`' || e.key === '~') && document.activeElement !== exprInput) {
+        e.preventDefault();
+        toggleConsole();
+      }
+    });
+
+    // Intercept Window Errors
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+      addLog('ERROR', 'RUNTIME', `${msg} (${url ? url.split('/').pop() : ''}:${lineNo}:${columnNo})`);
+    };
+    window.onunhandledrejection = function(e) {
+      addLog('ERROR', 'PROMISE', e.reason ? (e.reason.message || e.reason) : 'Unhandled rejection');
+    };
+
+    // Standard mode canvas
+    const cvStandard = document.getElementById('cvStandard');
+    const tipStandard = document.getElementById('tipStandard');
+    const formStandard = document.getElementById('formStandard');
+
+    // Derivatives mode canvases
+    const canvasesDeriv = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('cv' + i));
+    const tipsDeriv = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('tip' + i));
+    const formRefsDeriv = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('form' + i));
+
+    // Superposition mode canvases
+    const cvOverlay = document.getElementById('cvOverlay');
+    const tipOverlay = document.getElementById('tipOverlay');
+    const formSuperOverlay = document.getElementById('formSuperOverlay');
+    const overlayLegend = document.getElementById('overlayLegend');
+    const compCardsContainer = document.getElementById('compCardsContainer');
+
+    // 15 Curated Calculus Benchmark Functions
+    const randomFunctionBank = [
+      { fn: "f(x) = x^2 + 4000/x", desc: "加性分量分解 / 双极渐近平衡" },
+      { fn: "g(x) = \\begin{cases} x^2 \\sin\\left(\\frac{1}{x}\\right), & x \\neq 0 \\\\ 0, & x = 0 \\end{cases}", desc: "振荡夹逼奇点 (Squeeze Theorem)" },
+      { fn: "f(h) = h^{-2}", desc: "偶函数对称无穷间断点" },
+      { fn: "f(x) = 1 / \\sqrt{x}", desc: "经典负分数幂曲线" },
+      { fn: "f(x) = x^3 - 3*x", desc: "三次多项式双极值与拐点" },
+      { fn: "f(x) = \\sin(x) / x", desc: "Sinc采样函数 / 可去奇点" },
+      { fn: "f(x) = x * \\exp(-x^2)", desc: "高斯波包导数包络" },
+      { fn: "f(x) = 1 / (1 + x^2)", desc: "阿涅西的女巫 / 柯西分布核" },
+      { fn: "f(x) = \\tan(x)", desc: "正切函数周期性渐近线" },
+      { fn: "f(x) = x^(1/3)", desc: "三次方根 / 原点垂直切线" },
+      { fn: "f(x) = x^4 - 2*x^2", desc: "双势阱多项式 (W-shape)" },
+      { fn: "f(x) = \\ln(1 + x^2)", desc: "对数势阱平滑偶函数" },
+      { fn: "f(x) = x / (1 + x^2)", desc: "有界奇函数波动极值" },
+      { fn: "f(x) = \\exp(-1/x^2)", desc: "柯西无限阶平坦光滑奇点" },
+      { fn: "f(x) = 1 / (x^3 - x)", desc: "三极点有理分式 (-1, 0, 1)" }
+    ];
+
+    let currentVar = 'x';
+    let currentParity = '';
+    let currentTab = 'tab-superposition';
+    let orderLabels = ["f(x)", "f'(x)", "f''(x)", "f'''(x)", "f⁽⁴⁾(x)", "f⁽⁵⁾(x)"];
+    let favorites = [];
+
+    // Symbolic compiled expressions
+    let compiledFns = [];
+    let components = []; // [{ str: "x^2", js: "Math.pow(x, 2)", fn: Function }]
+    let compType = 'single';
+    let envelopes = null;
+
+    // Viewports
+    let viewStandard = { xCenter: 15.0, yCenter: 600.0, zoomX: 12.0, zoomY: 0.25 };
+    let viewsDeriv = [0, 1, 2, 3, 4, 5].map(i => ({ xCenter: 0.0, yCenter: 0.0, zoomX: 45, zoomY: 35 }));
+    let viewOverlay = { xCenter: 15.0, yCenter: 600.0, zoomX: 12.0, zoomY: 0.25 };
+    let viewsComp = [];
+
+    let draggingTarget = null;
+    let dragStart = { x: 0, y: 0 };
+    let lastKnownVersion = -1;
+
+    // Tab Switching
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        currentTab = btn.getAttribute('data-tab');
+        document.getElementById(currentTab).classList.add('active');
+        resizeAll();
+      });
+    });
+
+    function resizeCanvas(cv) {
+      if (!cv) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = cv.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      cv.width = rect.width * dpr;
+      cv.height = rect.height * dpr;
+      const ctx = cv.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    }
+
+    function resizeAll() {
+      resizeCanvas(cvStandard);
+      canvasesDeriv.forEach(cv => resizeCanvas(cv));
+      resizeCanvas(cvOverlay);
+      document.querySelectorAll('.cv-comp').forEach(cv => resizeCanvas(cv));
+      renderActiveTab();
+    }
+
+    function toScreen(cv, v, x, y) {
+      const rect = cv.getBoundingClientRect();
+      return {
+        x: rect.width / 2 + (x - v.xCenter) * v.zoomX,
+        y: rect.height / 2 - (y - v.yCenter) * v.zoomY
+      };
+    }
+
+    function toMath(cv, v, sx, sy) {
+      const rect = cv.getBoundingClientRect();
+      return {
+        x: v.xCenter + (sx - rect.width / 2) / v.zoomX,
+        y: v.yCenter - (sy - rect.height / 2) / v.zoomY
+      };
+    }
+
+    function calcNiceStep(span) {
+      if (span <= 0 || !isFinite(span)) return 1;
+      const exp = Math.floor(Math.log10(span));
+      const frac = span / Math.pow(10, exp);
+      let nice = 1;
+      if (frac >= 5) nice = 5;
+      else if (frac >= 2) nice = 2;
+      else nice = 1;
+      return nice * Math.pow(10, exp);
+    }
+
+    function buildPolylines(cv, v, fn) {
+      const rect = cv.getBoundingClientRect();
+      const W = rect.width;
+      const H = rect.height;
+
+      function getPoint(sx) {
+        const mx = toMath(cv, v, sx, 0).x;
+        let my;
+        try { my = fn(mx); } catch (e) { my = NaN; }
+        if (my === null || isNaN(my) || !isFinite(my)) {
+          return { mx, my: null, sx, sy: null };
+        }
+        const s = toScreen(cv, v, mx, my);
+        return { mx, my, sx: s.x, sy: s.y };
+      }
+
+      function subdivide(p1, p2, depth) {
+        if (depth >= 9) return [p2];
+        const dx = Math.abs(p2.sx - p1.sx);
+        const dy = Math.abs(p2.sy - p1.sy);
+        if ((p1.my > 0 && p2.my < 0) || (p1.my < 0 && p2.my > 0)) {
+          if (dy > H * 0.85) return [];
+        }
+        if (dy > 1.5 || dx > 2.0) {
+          const midSx = (p1.sx + p2.sx) / 2.0;
+          const midP = getPoint(midSx);
+          if (midP.my !== null) {
+            return subdivide(p1, midP, depth + 1).concat(subdivide(midP, p2, depth + 1));
+          }
+        }
+        return [p2];
+      }
+
+      const polylines = [];
+      let currentPoly = [];
+      const N = Math.min(800, Math.ceil(W * 2.0));
+      const step = (W + 40) / N;
+
+      for (let i = 0; i <= N; i++) {
+        const sx = -20 + i * step;
+        const p = getPoint(sx);
+        if (p.my !== null) {
+          if (currentPoly.length === 0) {
+            currentPoly.push(p);
+          } else {
+            const lastP = currentPoly[currentPoly.length - 1];
+            if ((lastP.my > 0 && p.my < 0) || (lastP.my < 0 && p.my > 0)) {
+              if (Math.abs(p.sy - lastP.sy) > H * 0.85) {
+                polylines.push(currentPoly);
+                currentPoly = [p];
+                continue;
+              }
+            }
+            const subPts = subdivide(lastP, p, 0);
+            for (let j = 0; j < subPts.length; j++) currentPoly.push(subPts[j]);
+          }
+        } else {
+          if (currentPoly.length > 0) {
+            polylines.push(currentPoly);
+            currentPoly = [];
+          }
+        }
+      }
+      if (currentPoly.length > 0) polylines.push(currentPoly);
+      return polylines;
+    }
+
+    function drawGridAndAxes(cv, ctx, v) {
+      const rect = cv.getBoundingClientRect();
+      const W = rect.width;
+      const H = rect.height;
+
+      ctx.clearRect(0, 0, W, H);
+
+      const mathMin = toMath(cv, v, 0, H);
+      const mathMax = toMath(cv, v, W, 0);
+      const origin = toScreen(cv, v, 0, 0);
+
+      // Grid
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.beginPath();
+      const rawSpanX = 60 / v.zoomX;
+      const stepX = calcNiceStep(rawSpanX);
+      const rawSpanY = 60 / v.zoomY;
+      const stepY = calcNiceStep(rawSpanY);
+
+      const xStart = Math.floor(mathMin.x / stepX) * stepX;
+      for (let x = xStart; x <= mathMax.x; x += stepX) {
+        const sx = toScreen(cv, v, x, 0).x;
+        ctx.moveTo(sx, 0); ctx.lineTo(sx, H);
+      }
+      const yStart = Math.floor(mathMin.y / stepY) * stepY;
+      for (let y = yStart; y <= mathMax.y; y += stepY) {
+        const sy = toScreen(cv, v, 0, y).y;
+        ctx.moveTo(0, sy); ctx.lineTo(W, sy);
+      }
+      ctx.stroke();
+
+      // Axes
+      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.beginPath();
+      ctx.moveTo(0, origin.y); ctx.lineTo(W, origin.y);
+      ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, H);
+      ctx.stroke();
+
+      // Ticks
+      ctx.fillStyle = '#64748b';
+      ctx.font = '9px monospace';
+      const precisionX = stepX < 0.01 ? 4 : (stepX < 1 ? 2 : 1);
+      const precisionY = stepY < 0.01 ? 4 : (stepY < 1 ? 2 : 1);
+
+      for (let x = xStart; x <= mathMax.x; x += stepX) {
+        if (Math.abs(x) < 1e-7) continue;
+        const sx = toScreen(cv, v, x, 0).x;
+        if (sx >= 10 && sx <= W - 15) {
+          ctx.fillText(Number(x.toFixed(precisionX)), sx - 5, Math.min(H - 4, Math.max(12, origin.y + 11)));
+        }
+      }
+      for (let y = yStart; y <= mathMax.y; y += stepY) {
+        if (Math.abs(y) < 1e-7) continue;
+        const sy = toScreen(cv, v, 0, y).y;
+        if (sy >= 12 && sy <= H - 6) {
+          ctx.fillText(Number(y.toFixed(precisionY)), Math.min(W - 32, Math.max(4, origin.x - 28)), sy + 3);
+        }
+      }
+      ctx.fillText('0', origin.x - 9, origin.y + 11);
+    }
+
+    function renderCurve(cv, ctx, v, fn, color, lineWidth = 2.0, lineDash = []) {
+      if (!fn) return;
+      const polylines = buildPolylines(cv, v, fn);
+      const rect = cv.getBoundingClientRect();
+      const H = rect.height;
+
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      if (lineDash.length) ctx.setLineDash(lineDash);
+
+      polylines.forEach(poly => {
+        if (poly.length === 0) return;
+        ctx.beginPath();
+        let started = false;
+        for (let i = 0; i < poly.length; i++) {
+          const p = poly[i];
+          const cSy = Math.max(-50, Math.min(H + 50, p.sy));
+          const cSx = p.sx;
+          if (!started) {
+            ctx.moveTo(cSx, cSy);
+            started = true;
+          } else {
+            ctx.lineTo(cSx, cSy);
+          }
+        }
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // Render Active Tab
+    function renderActiveTab() {
+      if (currentTab === 'tab-standard') {
+        renderStandard();
+      } else if (currentTab === 'tab-derivatives') {
+        renderDerivatives();
+      } else if (currentTab === 'tab-superposition') {
+        renderSuperposition();
+      }
+    }
+
+    // Mode 1: Standard Plot
+    function renderStandard() {
+      if (!cvStandard) return;
+      const ctx = cvStandard.getContext('2d');
+      drawGridAndAxes(cvStandard, ctx, viewStandard);
+      if (compiledFns[0]) {
+        renderCurve(cvStandard, ctx, viewStandard, compiledFns[0], colors[0], 2.4);
+      }
+    }
+
+    // Mode 2: Derivatives (6-Grid)
+    function renderDerivatives() {
+      for (let i = 0; i < 6; i++) {
+        const cv = canvasesDeriv[i];
+        if (!cv) continue;
+        const ctx = cv.getContext('2d');
+        const v = viewsDeriv[i];
+        drawGridAndAxes(cv, ctx, v);
+        if (compiledFns[i]) {
+          renderCurve(cv, ctx, v, compiledFns[i], colors[i], 2.0);
+        }
+      }
+    }
+
+    // Mode 3: Superposition & Decomposition
+    function renderSuperposition() {
+      // 1. Overlay Canvas
+      if (cvOverlay) {
+        const ctx = cvOverlay.getContext('2d');
+        drawGridAndAxes(cvOverlay, ctx, viewOverlay);
+
+        // Draw constituent components in dashed lines
+        components.forEach((c, idx) => {
+          const cColor = compColors[idx % compColors.length];
+          renderCurve(cvOverlay, ctx, viewOverlay, c.fn, cColor, 1.6, [4, 4]);
+        });
+
+        // Draw Composite function in solid thick line
+        if (compiledFns[0]) {
+          renderCurve(cvOverlay, ctx, viewOverlay, compiledFns[0], colors[0], 2.6);
+        }
+      }
+
+      // 2. Standalone Component Canvases
+      components.forEach((c, idx) => {
+        const cv = document.getElementById('cvComp_' + idx);
+        if (!cv) return;
+        const ctx = cv.getContext('2d');
+        const v = viewsComp[idx] || viewOverlay;
+        drawGridAndAxes(cv, ctx, v);
+        const cColor = compColors[idx % compColors.length];
+        renderCurve(cv, ctx, v, c.fn, cColor, 2.0);
+      });
+    }
+
+    // Setup interactive Pan / Zoom on any canvas
+    function attachPanZoom(cv, getView, setView, onUpdate) {
+      cv.addEventListener('mousedown', (e) => {
+        draggingTarget = { cv, getView, setView, onUpdate };
+        dragStart = { x: e.clientX, y: e.clientY };
+      });
+      cv.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const rect = cv.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const v = getView();
+
+        const mathBefore = toMath(cv, v, mouseX, mouseY);
+        const factor = e.deltaY < 0 ? 1.15 : 0.87;
+
+        v.zoomX *= factor;
+        v.zoomY *= factor;
+        v.xCenter = mathBefore.x - (mouseX - rect.width / 2) / v.zoomX;
+        v.yCenter = mathBefore.y + (mouseY - rect.height / 2) / v.zoomY;
+
+        setView(v);
+        onUpdate();
+      }, { passive: false });
+    }
+
+    window.addEventListener('mouseup', () => {
+      draggingTarget = null;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (draggingTarget) {
+        const dx = e.clientX - dragStart.x;
+        const dy = e.clientY - dragStart.y;
+        const v = draggingTarget.getView();
+        v.xCenter -= dx / v.zoomX;
+        v.yCenter += dy / v.zoomY;
+        dragStart = { x: e.clientX, y: e.clientY };
+        draggingTarget.setView(v);
+        draggingTarget.onUpdate();
+      }
+    });
+
+    // Attach Pan/Zoom to Standard Canvas
+    attachPanZoom(cvStandard, () => viewStandard, (v) => { viewStandard = v; }, renderStandard);
+
+    // Attach Pan/Zoom to Derivatives Canvases
+    canvasesDeriv.forEach((cv, idx) => {
+      attachPanZoom(cv, () => viewsDeriv[idx], (v) => { viewsDeriv[idx] = v; }, renderDerivatives);
+      cv.addEventListener('dblclick', () => {
+        viewsDeriv[idx] = { xCenter: 0.0, yCenter: 0.0, zoomX: 45, zoomY: 35 };
+        renderDerivatives();
+      });
+    });
+
+    // Attach Pan/Zoom to Overlay Canvas
+    attachPanZoom(cvOverlay, () => viewOverlay, (v) => { viewOverlay = v; }, renderSuperposition);
+
+    // Reset All Views
+    btnResetAll.addEventListener('click', () => {
+      viewStandard = { xCenter: 0.0, yCenter: 0.0, zoomX: 45, zoomY: 35 };
+      viewsDeriv = [0, 1, 2, 3, 4, 5].map(i => ({ xCenter: 0.0, yCenter: 0.0, zoomX: 45, zoomY: 35 }));
+      viewOverlay = { xCenter: 0.0, yCenter: 0.0, zoomX: 45, zoomY: 35 };
+      viewsComp = components.map(() => ({ xCenter: 0.0, yCenter: 0.0, zoomX: 45, zoomY: 35 }));
+      renderActiveTab();
+    });
+
+    // --- Core API: Submit Formula ---
+    function submitFormula() {
+      const val = exprInput.value.trim();
+      if (!val) return;
+      btnSubmit.innerText = '⏳ 求解...';
+      btnSubmit.style.opacity = '0.7';
+
+      const t0 = performance.now();
+      addLog('INFO', 'API', `POST /api/plot payload: "${val}"`);
+
+      fetch('/api/plot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fn: val })
+      })
+      .then(async r => {
+        const elapsed = (performance.now() - t0).toFixed(1);
+        if (!r.ok) {
+          const errData = await r.json().catch(() => ({}));
+          const errMsg = errData.error || ('HTTP ' + r.status);
+          throw new Error(errMsg);
+        }
+        addLog('INFO', 'API', `Response 200 OK (${elapsed}ms)`);
+        return r.json();
+      })
+      .then(data => {
+        if (data.pipeline_trace && Array.isArray(data.pipeline_trace)) {
+          data.pipeline_trace.forEach(step => addLog('AST', 'SYMPY', step));
+        }
+        addLog('INFO', 'SOLVER', `Formula compiled successfully: ${data.formulas ? data.formulas[0] : val}`);
+        applyState(data);
+      })
+      .catch(err => {
+        addLog('ERROR', 'PARSER', `Solver exception: ${err.message}`);
+        activeInspect.innerHTML = `<span style="color:#ef4444;font-weight:bold;">[解析错误] ${err.message}</span>`;
+        // Auto-reveal console drawer on error for immediate debugging
+        openConsole();
+      })
+      .finally(() => {
+        btnSubmit.innerText = '↵ 绘制';
+        btnSubmit.style.opacity = '1';
+      });
+    }
+
+    formulaForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitFormula();
+    });
+
+    exprInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitFormula();
+      }
+    });
+
+    // --- Random Roll ---
+    let lastRandomIdx = -1;
+    function rollRandomFunction() {
+      let nextIdx;
+      do {
+        nextIdx = Math.floor(Math.random() * randomFunctionBank.length);
+      } while (nextIdx === lastRandomIdx && randomFunctionBank.length > 1);
+      lastRandomIdx = nextIdx;
+      const pick = randomFunctionBank[nextIdx];
+      exprInput.value = pick.fn;
+      activeInspect.innerHTML = `<span style="color:#a855f7;">[🎲 随机摇中]</span> <span style="color:#fff;">${pick.desc}</span>`;
+      submitFormula();
+    }
+
+    btnRandom.addEventListener('click', rollRandomFunction);
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.key === 'r' || e.key === 'R') && document.activeElement !== exprInput) {
+        rollRandomFunction();
+      }
+    });
+
+    // --- Favorites Logic ---
+    function updateStarStatus() {
+      const current = exprInput.value.trim();
+      const isStarred = favorites.some(f => f.fn.trim() === current);
+      if (isStarred) {
+        btnStar.classList.add('starred');
+        btnStar.innerText = '★ 已收藏';
+      } else {
+        btnStar.classList.remove('starred');
+        btnStar.innerText = '☆ 收藏';
+      }
+      favCount.innerText = favorites.length;
+    }
+
+    async function loadFavorites() {
+      try {
+        const res = await fetch('/api/favorites');
+        if (res.ok) {
+          favorites = await res.json();
+          renderFavoritesList();
+          updateStarStatus();
+        }
+      } catch (e) {
+        const stored = localStorage.getItem('mathlab_favs');
+        if (stored) {
+          favorites = JSON.parse(stored);
+          renderFavoritesList();
+          updateStarStatus();
+        }
+      }
+    }
+
+    function renderFavoritesList() {
+      favsList.innerHTML = '';
+      if (favorites.length === 0) {
+        favsList.innerHTML = `<div style="color:#64748b;font-size:12px;text-align:center;margin-top:20px;">暂无收藏，点击顶部 ☆ 收藏即可保存函数</div>`;
+        return;
+      }
+      favorites.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'fav-card';
+        card.innerHTML = `
+          <div class="fav-title">${f.title || '收藏函数'}</div>
+          <div class="fav-fn">${f.fn}</div>
+          <div class="fav-actions">
+            <button class="fav-btn-load" data-fn="${encodeURIComponent(f.fn)}">⚡ 绘制</button>
+            <button class="fav-btn-del" data-fn="${encodeURIComponent(f.fn)}">🗑️</button>
+          </div>
+        `;
+        favsList.appendChild(card);
+      });
+
+      favsList.querySelectorAll('.fav-btn-load').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const fn = decodeURIComponent(btn.getAttribute('data-fn'));
+          exprInput.value = fn;
+          favsModal.classList.remove('open');
+          submitFormula();
+        });
+      });
+
+      favsList.querySelectorAll('.fav-btn-del').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const fn = decodeURIComponent(btn.getAttribute('data-fn'));
+          await toggleFavorite(fn, 'remove');
+        });
+      });
+
+      updateStarStatus();
+    }
+
+    async function toggleFavorite(targetFn, forcedAction) {
+      const fn = targetFn || exprInput.value.trim();
+      if (!fn) return;
+      const isAlready = favorites.some(f => f.fn.trim() === fn);
+      const action = forcedAction || (isAlready ? 'remove' : 'add');
+
+      try {
+        const res = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fn, action, title: fn })
+        });
+        if (res.ok) {
+          favorites = await res.json();
+        }
+      } catch (e) {
+        if (action === 'remove') {
+          favorites = favorites.filter(f => f.fn.trim() !== fn);
+        } else {
+          favorites.unshift({ id: 'fav-' + Date.now(), fn, title: fn });
+        }
+      }
+      localStorage.setItem('mathlab_favs', JSON.stringify(favorites));
+      renderFavoritesList();
+      updateStarStatus();
+    }
+
+    btnStar.addEventListener('click', () => { toggleFavorite(); });
+    btnOpenFavs.addEventListener('click', () => { favsModal.classList.toggle('open'); });
+    btnCloseFavs.addEventListener('click', () => { favsModal.classList.remove('open'); });
+
+    document.addEventListener('click', (e) => {
+      if (favsModal.classList.contains('open') && !favsModal.contains(e.target) && e.target !== btnOpenFavs) {
+        favsModal.classList.remove('open');
+      }
+    });
+
+    // --- State Update Handler ---
+    function applyState(data) {
+      if (data.version) {
+        lastKnownVersion = data.version;
+      }
+      if (data.var) {
+        currentVar = data.var;
+        orderLabels = [
+          `f(${currentVar})`,
+          `f'(${currentVar})`,
+          `f''(${currentVar})`,
+          `f'''(${currentVar})`,
+          `f⁽⁴⁾(${currentVar})`,
+          `f⁽⁵⁾(${currentVar})`
+        ];
+      }
+      if (data.parity) {
+        currentParity = data.parity;
+        activeInspect.innerHTML = `<span style="color:#38bdf8;">[${currentParity}]</span> Hover over plot to inspect`;
+      }
+
+      // Update Form Titles
+      if (data.formulas && data.formulas.length >= 6) {
+        formStandard.innerText = data.formulas[0];
+        for (let i = 0; i < 6; i++) {
+          formRefsDeriv[i].innerText = data.formulas[i];
+        }
+      }
+
+      // Compile Derivatives JS Functions
+      if (data.js_code && data.js_code.length >= 6) {
+        compiledFns = data.js_code.map(code => {
+          try {
+            return new Function('x', 'try { return (' + code + '); } catch(e) { return NaN; }');
+          } catch (e) {
+            return () => NaN;
+          }
+        });
+      }
+
+      // Components Decomposition (Superposition Mode)
+      compType = data.comp_type || 'single';
+      if (data.components && data.components.length > 0) {
+        components = data.components.map(c => ({
+          str: c.str,
+          js: c.js,
+          fn: new Function('x', 'try { return (' + c.js + '); } catch(e) { return NaN; }')
+        }));
+      } else {
+        components = [{ str: data.formulas ? data.formulas[0] : 'f(x)', fn: compiledFns[0] }];
+      }
+
+      // Rebuild Component Subplots in Superposition Tab
+      rebuildComponentCards();
+
+      // Dynamic Viewport Centering & Auto-zooms
+      if (data.suggested_view) {
+        viewStandard = Object.assign({}, data.suggested_view);
+        viewOverlay = Object.assign({}, data.suggested_view);
+        if (viewsDeriv && viewsDeriv.length > 0) {
+          viewsDeriv[0] = Object.assign({}, data.suggested_view);
+        }
+      } else if (data.zooms && data.zooms.length >= 6) {
+        viewStandard = {
+          xCenter: 0.0,
+          yCenter: 0.0,
+          zoomX: data.zooms[0].zx,
+          zoomY: data.zooms[0].zy
+        };
+        viewOverlay = Object.assign({}, viewStandard);
+      }
+      if (data.zooms && data.zooms.length >= 6) {
+        viewsDeriv = data.zooms.map((z, idx) => ({
+          xCenter: (idx === 0 && data.suggested_view) ? data.suggested_view.xCenter : 0.0,
+          yCenter: (idx === 0 && data.suggested_view) ? data.suggested_view.yCenter : 0.0,
+          zoomX: z.zx,
+          zoomY: z.zy
+        }));
+        viewsComp = components.map(() => Object.assign({}, viewOverlay));
+      }
+
+      if (hudEngineStatus) hudEngineStatus.innerText = 'AST: READY';
+      if (hudActiveVar) hudActiveVar.innerText = 'Var: ' + currentVar;
+
+      updateStarStatus();
+      renderActiveTab();
+    }
+
+    function rebuildComponentCards() {
+      compCardsContainer.innerHTML = '';
+      let legendHtml = `<span style="color:${colors[0]};font-weight:bold;">— 合成 f(x)</span> `;
+      components.forEach((c, idx) => {
+        const cColor = compColors[idx % compColors.length];
+        legendHtml += `<span style="color:${cColor};margin-left:8px;">·· 分量 u${idx+1}: ${c.str}</span>`;
+
+        const card = document.createElement('div');
+        card.className = 'panel-card';
+        card.style.borderTop = `2px solid ${cColor}`;
+        card.innerHTML = `
+          <div class="panel-header">
+            <span class="panel-formula" style="color: ${cColor};">u${idx+1}(${currentVar}) = ${c.str}</span>
+            <span style="font-size:10px;color:#64748b;">分量基底 ${idx+1}</span>
+          </div>
+          <div class="canvas-wrap">
+            <canvas id="cvComp_${idx}" class="cv-comp"></canvas>
+            <div class="mouse-tooltip" id="tipComp_${idx}"></div>
+          </div>
+        `;
+        compCardsContainer.appendChild(card);
+
+        const cv = card.querySelector('.cv-comp');
+        resizeCanvas(cv);
+        if (!viewsComp[idx]) viewsComp[idx] = Object.assign({}, viewOverlay);
+        attachPanZoom(cv, () => viewsComp[idx], (v) => { viewsComp[idx] = v; }, renderSuperposition);
+      });
+      overlayLegend.innerHTML = legendHtml;
+    }
+
+    async function pollState() {
+      if (document.activeElement === exprInput) return;
+      try {
+        const res = await fetch('/api/state?t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          if (data.version !== lastKnownVersion) {
+            lastKnownVersion = data.version;
+            exprInput.value = data.fn;
+            applyState(data);
+          }
+        }
+      } catch (e) {}
+    }
+
+    window.addEventListener('resize', resizeAll);
+    setInterval(pollState, 1500);
+
+    // Initial boot
+    resizeAll();
+    pollState();
+    loadFavorites();
+  </script>
+</body>
+</html>

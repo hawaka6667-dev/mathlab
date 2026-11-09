@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*.log
+*.tmp
+*b64*
+overlay_b64.json
+hud_b64.json
+canvas_data.txt
+.vscode/
+.idea/
