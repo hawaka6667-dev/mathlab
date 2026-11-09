@@ -320,6 +320,22 @@ TOOLS = [
         }
     },
     {
+        "name": "mathlab_set_term_density",
+        "description": "Adjust mathematics terminology display density on the live workbench ('compact', 'dense', or 'bilingual').",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "density": {
+                    "type": "string",
+                    "description": "Density mode: 'compact', 'dense', or 'bilingual'",
+                    "enum": ["compact", "dense", "bilingual"],
+                    "default": "bilingual"
+                }
+            },
+            "required": ["density"]
+        }
+    },
+    {
         "name": "mathlab_set_workbench_formula",
         "description": "Remotely update the active formula of the live MathLab Studio workbench on the user's screen.",
         "inputSchema": {
@@ -421,6 +437,16 @@ def handle_request(req):
                 })
             elif tool_name == "mathlab_asymptotes":
                 res = compute_asymptotes(args["formula"])
+                send_response({
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {
+                        "content": [{"type": "text", "text": json.dumps(res, ensure_ascii=False, indent=2)}]
+                    }
+                })
+            elif tool_name == "mathlab_set_term_density":
+                density = args.get("density", "bilingual")
+                res = {"status": "ok", "density": density, "message": f"Terminology density set to {density}"}
                 send_response({
                     "jsonrpc": "2.0",
                     "id": msg_id,

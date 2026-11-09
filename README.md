@@ -28,6 +28,10 @@
    - **科研深青 (Solarized Dark)**: 经典科学计算深青 `#002b36` 基底，搭载低疲劳色标。
 7. **GitHub Pages 纯静态双模自适应**:
    - 部署于 GitHub Pages 静态环境时，自动激活前端数值微分引擎 (`client_solver.js`)，零后端运行微积分曲线探索。
+8. **微积分术语悬浮对照与原位互换 (Interactive Term Morphing & Density Control)**:
+   - **交互悬浮翻译**: 鼠标悬浮专业微积分术语时展示双语对照浮层（`zh` 模式展示对应地道英文术语，`en` 模式展示中文标准译名，并配有极简微积分物理意义释义）。
+   - **原位点击互换 (Click-to-Swap)**: 在 `zh-en` 混用与双语模式下，点击术语可原位即时切换中/英主客次序。
+   - **Copilot & MCP 密度调控**: 对外暴露 `window.mathlabSetTermDensity` 与 MCP 工具 `mathlab_set_term_density`，支持 AI 伴侣根据用户习惯远程或指令动态调整页面术语紧凑度 (`compact` / `dense` / `bilingual`)。
 
 ---
 
@@ -78,6 +82,7 @@ MathLab 原生提供符合标准 JSON-RPC 2.0 stdio 协议的 **MCP 服务端** 
 | `mathlab_asymptotes` | `formula` (string) | 探测函数的全部水平、垂直奇点与斜渐近线 ($y = mx + b$)。 |
 | `mathlab_get_workbench_state` | *none* | 读取当前屏幕上运行中的 MathLab 画布视窗与当前激活公式。 |
 | `mathlab_set_workbench_formula` | `formula` (string) | 远程操纵并更新用户当前屏幕上的 MathLab 绘制公式。 |
+| `mathlab_set_term_density` | `density` (string) | 动态调控前端微积分术语展示密度 ('compact', 'dense', 'bilingual')。 |
 
 ---
 
@@ -130,7 +135,8 @@ mathlab/
 │   ├── ai_copilot.js          # NotebookLM 风格 Copilot 侧边栏与 Action 药丸渲染
 │   ├── client_solver.js       # GitHub Pages 离线纯前端数值微积分自适应引擎
 │   ├── i18n.js                # zh / en / zh-en 术语定制与动态多语言切换
-│   └── theme.js               # 皮肤系统与夜间模式 (Dark 默认 / OLED / Academic / Solarized)
+│   ├── theme.js               # 皮肤系统与夜间模式 (Dark 默认 / OLED / Academic / Solarized)
+│   └── term_morpher.js        # 交互式术语悬浮对照、原位互换与密度调控
 ├── server.py                  # Python 高性能后端 (SymPy 符号求解、微积分分析与 Gemini 调度)
 ├── mcp_server.py              # 全局 stdio JSON-RPC MCP 服务端
 ├── favorites.json             # 经典函数分析题库 (基础、教材、几何物理、奇点)

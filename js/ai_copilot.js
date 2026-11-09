@@ -157,6 +157,9 @@ export async function sendAIMessage(explicitText) {
     if (data.actions && data.actions.length > 0) {
       data.actions.forEach(a => {
         addLog('INFO', 'AI_ACTION', `Tool [${a.tool}]: ${a.result}`);
+        if (a.tool === 'set_term_density' && window.mathlabSetTermDensity) {
+          window.mathlabSetTermDensity(a.args.density);
+        }
       });
     }
 

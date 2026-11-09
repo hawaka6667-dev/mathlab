@@ -1044,3 +1044,73 @@ canvas {
     min-height: 220px;
   }
 }
+
+/* ========================================================
+   Interactive Term Tooltip & Morphing Styles
+   ======================================================== */
+.interactive-term {
+  cursor: pointer;
+  border-bottom: 1px dotted rgba(56, 189, 248, 0.4);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.interactive-term:hover {
+  color: #38bdf8 !important;
+  border-bottom-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  border-radius: 3px;
+}
+
+.term-hover-tooltip {
+  position: fixed;
+  z-index: 10000;
+  display: none;
+  background: rgba(15, 23, 42, 0.97);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 8px 12px;
+  max-width: 320px;
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  animation: tooltipFadeIn 0.12s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.tooltip-primary {
+  font-size: 13px;
+  font-weight: 700;
+  color: #38bdf8;
+}
+.tooltip-counter {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.tooltip-desc {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #cbd5e1;
+  margin-bottom: 5px;
+}
+.tooltip-hint {
+  font-size: 9.5px;
+  color: #64748b;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 4px;
+}

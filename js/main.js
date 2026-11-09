@@ -9,6 +9,7 @@ import { initFavorites, updateStarStatus, renderCategoryUI } from './favorites.j
 import { initAICopilot } from './ai_copilot.js';
 import { t, getLocale, cycleLocale, applyI18nToDOM } from './i18n.js';
 import { solveClientSide } from './client_solver.js';
+import { initTermGlossary, updateAllTermElements } from './term_morpher.js';
 
 // DOM References
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -421,6 +422,7 @@ if (btnLangToggle) {
     cycleLocale(() => {
       renderCategoryUI();
       renderActiveTab();
+      updateAllTermElements();
     });
   });
 }
@@ -430,6 +432,7 @@ initTheme(() => {
   renderActiveTab();
 });
 
+initTermGlossary();
 initFavorites(submitFormula);
 initAICopilot((newState) => {
   if (exprInput) exprInput.value = newState.fn;

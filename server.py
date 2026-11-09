@@ -529,6 +529,18 @@ def handle_ai_chat(message: str, history: list, api_key: str):
         log_event("INFO", "AI_TOOL", f"AI bookmark_function: {formula}")
         return action["result"]
 
+    def tool_density(density: str):
+        if density not in ["compact", "dense", "bilingual"]:
+            density = "bilingual"
+        action = {
+            "tool": "set_term_density",
+            "args": {"density": density},
+            "result": f"已将前端微积分术语密度切换至: {density}"
+        }
+        actions_taken.append(action)
+        log_event("INFO", "AI_TOOL", f"AI set_term_density: {density}")
+        return action["result"]
+
     def tool_get_state():
         return {
             "formula": current_state.get("fn", ""),
@@ -672,6 +684,14 @@ def handle_ai_chat(message: str, history: list, api_key: str):
             f"{asymp_desc}\n\n"
             f"> [!TIP]\n"
             f"> 铅直渐近线源于分母为 0 之代数奇点；水平与斜渐近线由 $x \\to \\pm\\infty$ 极限行为决定。"
+        )
+    elif re.search(r'(?:密度|density|双语|bilingual|中英对照|互换|切换术语)', msg, re.I):
+        d_mode = "dense" if ("高密度" in msg or "中英对照" in msg) else ("compact" if ("紧凑" in msg or "精简" in msg) else "bilingual")
+        tool_density(d_mode)
+        reply = (
+            f"🌐 **数学术语展示密度已调控为 `{d_mode}`**。\n\n"
+            f"- 页面上核心微积分术语已按 `{d_mode}` 呈现。\n"
+            f"- 鼠标悬停任意数学术语即可呼出中英对照悬浮气泡，在 `zh-en` 模式下点击术语可原位互换语言形态。"
         )
     else:
         reply = (
