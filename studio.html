@@ -37,6 +37,7 @@
       <button type="button" class="btn btn-favs" id="btnOpenFavs" title="打开收藏夹">📑 收藏夹 (<span id="favCount">0</span>)</button>
       <button type="button" class="btn btn-random" id="btnRandom" title="随机摇一个经典分析学/微积分函数 (快捷键: R)">🎲 随机摇函数</button>
       <button type="button" class="btn" id="btnResetAll" title="重置全部视角为中心十字轴">🎯 Reset All</button>
+      <button type="button" class="btn" id="btnLangToggle" title="切换术语语言 / Toggle Language (zh / en / zh-en)">🌐 Code-Switching (zh-en)</button>
     </div>
   </header>
 
@@ -170,10 +171,12 @@
 
     <!-- Quick Prompts Toolbar -->
     <div class="ai-quick-prompts">
-      <div class="ai-quick-chip" data-prompt="画 x^2 + 4000/x 并分解基底">✨ x^2 + 4000/x 分解</div>
-      <div class="ai-quick-chip" data-prompt="求导分析三次多项式 x^3 - 3*x">📈 x^3 - 3x 导数分析</div>
-      <div class="ai-quick-chip" data-prompt="展示有界奇函数波动极值 x / (1 + x^2)">🔍 x/(1+x^2) 极值</div>
-      <div class="ai-quick-chip" data-prompt="收藏当前函数">⭐ 收藏当前</div>
+      <div class="ai-quick-chip" data-prompt="计算当前函数的4阶泰勒展开式">✨ 4阶泰勒展开</div>
+      <div class="ai-quick-chip" data-prompt="求解当前函数的全部驻点、极值点与拐点">🔍 极值与拐点求解</div>
+      <div class="ai-quick-chip" data-prompt="探测当前函数的水平、铅直与斜渐近线">📐 探测全部渐近线</div>
+      <div class="ai-quick-chip" data-prompt="画 exp(-0.2*x)*sin(2*x) 阻尼振荡">🌊 阻尼波动衰减</div>
+      <div class="ai-quick-chip" data-prompt="画 x^2 + 4000/x 并分解基底">🧩 x^2 + 4000/x 分解</div>
+      <div class="ai-quick-chip" data-prompt="收藏当前函数">⭐ 存入收藏夹</div>
     </div>
 
     <!-- AI Input Form -->

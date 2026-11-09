@@ -4,8 +4,10 @@
 
 import { colors, compColors, resizeCanvas, toMath, drawGridAndAxes, renderCurve, attachPanZoom } from './render_engine.js';
 import { addLog, openConsole, updateEngineHUD } from './hud_logger.js';
-import { initFavorites, updateStarStatus } from './favorites.js';
+import { initFavorites, updateStarStatus, renderCategoryUI } from './favorites.js';
 import { initAICopilot } from './ai_copilot.js';
+import { t, getLocale, cycleLocale, applyI18nToDOM } from './i18n.js';
+import { solveClientSide } from './client_solver.js';
 
 // DOM References
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -209,11 +211,18 @@ export function submitFormula(explicitVal) {
     applyState(data);
   })
   .catch(err => {
-    addLog('ERROR', 'PARSER', `Solver exception: ${err.message}`);
-    if (activeInspect) {
-      activeInspect.innerHTML = `<span style="color:#ef4444;font-weight:bold;">[解析错误] ${err.message}</span>`;
+    addLog('WARN', 'CLIENT_ENGINE', `Server API unavailable (${err.message}). Engaging client-side numerical differentiation fallback...`);
+    try {
+      const clientData = solveClientSide(val);
+      applyState(clientData);
+      addLog('INFO', 'CLIENT_ENGINE', `Client-side curves rendered successfully for "${val}"`);
+    } catch (clientErr) {
+      addLog('ERROR', 'PARSER', `Client solver exception: ${clientErr.message}`);
+      if (activeInspect) {
+        activeInspect.innerHTML = `<span style="color:#ef4444;font-weight:bold;">[解析错误] ${clientErr.message}</span>`;
+      }
+      openConsole();
     }
-    openConsole();
   })
   .finally(() => {
     if (btnSubmit) {
@@ -405,6 +414,17 @@ function switchMode(mode) {
 }
 
 // Bootstrap
+const btnLangToggle = document.getElementById('btnLangToggle');
+if (btnLangToggle) {
+  btnLangToggle.addEventListener('click', () => {
+    cycleLocale(() => {
+      renderCategoryUI();
+      renderActiveTab();
+    });
+  });
+}
+applyI18nToDOM();
+
 initFavorites(submitFormula);
 initAICopilot((newState) => {
   if (exprInput) exprInput.value = newState.fn;

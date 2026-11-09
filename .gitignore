@@ -6,5 +6,7 @@ __pycache__/
 overlay_b64.json
 hud_b64.json
 canvas_data.txt
+state.json
+plot_fx.png
 .vscode/
 .idea/

@@ -8,6 +8,8 @@ import os
 import re
 import json
 import math
+import time
+import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 
@@ -348,6 +350,127 @@ def log_event(level: str, category: str, message: str, meta: dict = None):
         server_logs.pop(0)
 
 # Gemini AI Copilot Integration
+def load_favorites_data():
+    fav_file = DOC_ROOT / "favorites.json"
+    if not fav_file.exists():
+        return {
+            "version": "2.0",
+            "categories": [{"id": "default", "name": {"zh": "基础常备", "en": "Default Basics", "zh_en": "基础 Basics"}, "items": []}]
+        }
+    try:
+        data = json.loads(fav_file.read_text(encoding="utf-8"))
+        if isinstance(data, list):
+            return {
+                "version": "2.0",
+                "categories": [
+                    {"id": "default", "name": {"zh": "基础常备", "en": "Default Basics", "zh_en": "基础 Basics"}, "items": data}
+                ]
+            }
+        return data
+    except Exception:
+        return {"version": "2.0", "categories": []}
+
+def compute_taylor(formula_str: str, x0: float = 0.0, order: int = 4):
+    base_expr, _, var, _ = parse_any_math(formula_str)
+    x = sp.Symbol('x')
+    sub_expr = base_expr.subs(var, x)
+    t = sub_expr.series(x, x0, order + 1).removeO()
+    return {
+        "formula": formula_str,
+        "x0": x0,
+        "order": order,
+        "taylor_expr": str(t),
+        "latex": sp.latex(t)
+    }
+
+def compute_critical(formula_str: str):
+    base_expr, _, var, _ = parse_any_math(formula_str)
+    x = sp.Symbol('x')
+    f = base_expr.subs(var, x)
+    
+    extrema = []
+    try:
+        fp = sp.diff(f, x)
+        roots_fp = sp.solve(fp, x)
+        for r in roots_fp:
+            val_r = r.evalf()
+            if val_r.is_real:
+                val_x = float(val_r)
+                val_y = float(f.subs(x, val_r).evalf())
+                fpp_val = sp.diff(fp, x).subs(x, val_r).evalf()
+                classification = "minimum" if fpp_val > 0 else ("maximum" if fpp_val < 0 else "stationary")
+                extrema.append({"x": val_x, "y": val_y, "type": classification})
+    except Exception:
+        pass
+
+    inflection = []
+    try:
+        fpp = sp.diff(f, x, 2)
+        roots_fpp = sp.solve(fpp, x)
+        for r in roots_fpp:
+            val_r = r.evalf()
+            if val_r.is_real:
+                val_x = float(val_r)
+                val_y = float(f.subs(x, val_r).evalf())
+                inflection.append({"x": val_x, "y": val_y, "type": "inflection"})
+    except Exception:
+        pass
+
+    return {
+        "formula": formula_str,
+        "extrema": extrema[:10],
+        "inflection": inflection[:10]
+    }
+
+def compute_asymptotes(formula_str: str):
+    base_expr, _, var, _ = parse_any_math(formula_str)
+    x = sp.Symbol('x')
+    f = base_expr.subs(var, x)
+    res = []
+    
+    # Slant and horizontal
+    try:
+        m_pos = sp.limit(f/x, x, sp.oo)
+        if m_pos.is_finite:
+            b_pos = sp.limit(f - m_pos*x, x, sp.oo)
+            if b_pos.is_finite:
+                if m_pos == 0:
+                    res.append({"type": "horizontal", "equation": f"y = {b_pos}", "latex": f"y = {sp.latex(b_pos)}", "direction": "+∞"})
+                else:
+                    slant_eq = m_pos * x + b_pos
+                    res.append({"type": "slant", "equation": f"y = {m_pos}*x + {b_pos}", "latex": f"y = {sp.latex(slant_eq)}", "direction": "+∞"})
+    except Exception:
+        pass
+
+    try:
+        m_neg = sp.limit(f/x, x, -sp.oo)
+        if m_neg.is_finite:
+            b_neg = sp.limit(f - m_neg*x, x, -sp.oo)
+            if b_neg.is_finite:
+                slant_eq = m_neg * x + b_neg
+                eq_str = f"y = {b_neg}" if m_neg == 0 else f"y = {m_neg}*x + {b_neg}"
+                if not any(a.get("equation") == eq_str for a in res):
+                    res.append({"type": "horizontal" if m_neg == 0 else "slant", "equation": eq_str, "latex": f"y = {sp.latex(slant_eq)}", "direction": "-∞"})
+    except Exception:
+        pass
+
+    # Vertical asymptotes
+    try:
+        numer, denom = f.as_numer_denom()
+        if denom != 1:
+            roots = sp.solve(denom, x)
+            for r in roots:
+                val_r = r.evalf()
+                if val_r.is_real:
+                    res.append({"type": "vertical", "equation": f"x = {r}", "latex": f"x = {sp.latex(r)}"})
+    except Exception:
+        pass
+
+    return {
+        "formula": formula_str,
+        "asymptotes": res
+    }
+
 def handle_ai_chat(message: str, history: list, api_key: str):
     global current_state, gemini_session_key
     key = api_key or gemini_session_key or os.environ.get("GEMINI_API_KEY", "")
@@ -514,6 +637,42 @@ def handle_ai_chat(message: str, history: list, api_key: str):
     elif m_bookmark:
         tool_bookmark(current_state.get('fn', 'x'), f"收藏函数 {current_state.get('fn', 'x')}")
         reply = f"⭐ 已将当前函数 `${current_state.get('fn')}$` 存入您的数学收藏夹。"
+    elif re.search(r'(?:泰勒|taylor|展开)', msg, re.I):
+        fn_curr = current_state.get('fn', 'x')
+        t_res = compute_taylor(fn_curr, 0.0, 4)
+        reply = (
+            f"📐 **4阶麦克劳林/泰勒展开式 (Taylor Series, $x_0=0$)**:\n\n"
+            f"- 原函数：`${fn_curr}$`\n"
+            f"- 逼近多项式：`P₄(x) = {t_res['taylor_expr']}`\n"
+            f"- LaTeX 形式：`${t_res['latex']}$`\n\n"
+            f"> [!TIP]\n"
+            f"> 泰勒展开在展开点近邻具备极高代数逼近精度，可用于局部非线性动力学线性化或数值近似。"
+        )
+    elif re.search(r'(?:极值|驻点|拐点|critical|extrema|inflection)', msg, re.I):
+        fn_curr = current_state.get('fn', 'x')
+        c_res = compute_critical(fn_curr)
+        ext_list = c_res.get('extrema', [])
+        inf_list = c_res.get('inflection', [])
+        ext_desc = ', '.join([f"({round(p['x'], 3)}, {round(p['y'], 3)}) [{p['type']}]" for p in ext_list]) or "无实数驻点"
+        inf_desc = ', '.join([f"({round(p['x'], 3)}, {round(p['y'], 3)})" for p in inf_list]) or "无实数拐点"
+        reply = (
+            f"🔍 **临界驻点与拐点微积分分析** (`{fn_curr}`):\n\n"
+            f"- **一阶导零点 (极值点 $f'(x)=0$)**: {ext_desc}\n"
+            f"- **二阶导零点 (凹凸拐点 $f''(x)=0$)**: {inf_desc}\n\n"
+            f"> [!NOTE]\n"
+            f"> 极值点处切线斜率为 0；拐点处曲线二阶导变号，凹凸凹凸性发生几何反转。"
+        )
+    elif re.search(r'(?:渐近线|asymptote)', msg, re.I):
+        fn_curr = current_state.get('fn', 'x')
+        a_res = compute_asymptotes(fn_curr)
+        asymps = a_res.get('asymptotes', [])
+        asymp_desc = '\n'.join([f"- **{a['type'].capitalize()} ({a.get('direction', 'pole')})**: `{a['equation']}` (`${a['latex']}$`)" for a in asymps]) if asymps else "未检测到标准水平/铅直/斜渐近线"
+        reply = (
+            f"📐 **渐近线几何探测 (Asymptotes Detection)** (`{fn_curr}`):\n\n"
+            f"{asymp_desc}\n\n"
+            f"> [!TIP]\n"
+            f"> 铅直渐近线源于分母为 0 之代数奇点；水平与斜渐近线由 $x \\to \\pm\\infty$ 极限行为决定。"
+        )
     else:
         reply = (
             f"👋 您好！我是 MathLab 内置协同助手。\n\n"
@@ -562,17 +721,11 @@ class MathLabHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps(current_state).encode("utf-8"))
             return
         elif self.path.startswith("/api/favorites"):
-            fav_file = DOC_ROOT / "favorites.json"
-            favs = []
-            if fav_file.exists():
-                try:
-                    favs = json.loads(fav_file.read_text(encoding="utf-8"))
-                except Exception:
-                    pass
+            favs_data = load_favorites_data()
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
-            self.wfile.write(json.dumps(favs).encode("utf-8"))
+            self.wfile.write(json.dumps(favs_data).encode("utf-8"))
             return
         elif self.path.startswith("/api/logs"):
             self.send_response(200)
@@ -654,40 +807,99 @@ class MathLabHandler(SimpleHTTPRequestHandler):
                 length = int(self.headers.get("Content-Length", 0))
                 body = self.rfile.read(length)
                 data = json.loads(body.decode("utf-8"))
-                fav_file = DOC_ROOT / "favorites.json"
-                favs = []
-                if fav_file.exists():
-                    try:
-                        favs = json.loads(fav_file.read_text(encoding="utf-8"))
-                    except Exception:
-                        pass
-                
-                # Check if remove action
-                if data.get("action") == "remove":
-                    target_fn = data.get("fn", "").strip()
-                    favs = [f for f in favs if f.get("fn", "").strip() != target_fn]
+                fav_data = load_favorites_data()
+                target_fn = data.get("fn", "").strip()
+                target_cat = data.get("category", "default")
+                action = data.get("action", "add")
+
+                if action == "remove":
+                    for cat in fav_data.get("categories", []):
+                        cat["items"] = [item for item in cat.get("items", []) if item.get("fn", "").strip() != target_fn]
                     log_event("INFO", "FAVORITE", f"Removed bookmark '{target_fn}'")
                 else:
-                    # Add
                     new_item = {
-                        "id": f"fav-{len(favs) + 1}",
-                        "fn": data.get("fn", "").strip(),
-                        "title": data.get("title", data.get("fn", "")).strip(),
-                        "createdAt": "2026-11-09"
+                        "id": f"fav-{int(time.time()*1000)}",
+                        "fn": target_fn,
+                        "title": data.get("title", target_fn).strip(),
+                        "createdAt": datetime.date.today().isoformat()
                     }
-                    if not any(f.get("fn", "").strip() == new_item["fn"] for f in favs):
-                        favs.insert(0, new_item)
-                        log_event("INFO", "FAVORITE", f"Added bookmark '{new_item['fn']}'")
+                    cat = next((c for c in fav_data.get("categories", []) if c.get("id") == target_cat), None)
+                    if not cat:
+                        cat = {"id": target_cat, "name": {"zh": target_cat, "en": target_cat, "zh_en": target_cat}, "items": []}
+                        fav_data.setdefault("categories", []).append(cat)
+                    if not any(item.get("fn", "").strip() == target_fn for item in cat.get("items", [])):
+                        cat["items"].insert(0, new_item)
+                        log_event("INFO", "FAVORITE", f"Added bookmark '{target_fn}' to '{target_cat}'")
 
-                fav_file.write_text(json.dumps(favs, indent=2, ensure_ascii=False), encoding="utf-8")
+                fav_file = DOC_ROOT / "favorites.json"
+                fav_file.write_text(json.dumps(fav_data, indent=2, ensure_ascii=False), encoding="utf-8")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
-                self.wfile.write(json.dumps(favs).encode("utf-8"))
+                self.wfile.write(json.dumps(fav_data).encode("utf-8"))
                 return
             except Exception as e:
                 log_event("ERROR", "FAVORITE", str(e))
                 self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                return
+
+        if self.path == "/api/math/taylor":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length)
+                data = json.loads(body.decode("utf-8"))
+                fn = str(data.get("formula", current_state.get("fn", "x"))).strip()
+                x0 = float(data.get("x0", 0.0))
+                order = int(data.get("order", 4))
+                res = compute_taylor(fn, x0, order)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res).encode("utf-8"))
+                return
+            except Exception as e:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                return
+
+        if self.path == "/api/math/critical":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length)
+                data = json.loads(body.decode("utf-8"))
+                fn = str(data.get("formula", current_state.get("fn", "x"))).strip()
+                res = compute_critical(fn)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res).encode("utf-8"))
+                return
+            except Exception as e:
+                self.send_response(400)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                return
+
+        if self.path == "/api/math/asymptotes":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length)
+                data = json.loads(body.decode("utf-8"))
+                fn = str(data.get("formula", current_state.get("fn", "x"))).strip()
+                res = compute_asymptotes(fn)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(res).encode("utf-8"))
+                return
+            except Exception as e:
+                self.send_response(400)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
