@@ -2,7 +2,8 @@
  * MathLab Application Controller & State Orchestrator
  */
 
-import { colors, compColors, resizeCanvas, toMath, drawGridAndAxes, renderCurve, attachPanZoom } from './render_engine.js';
+import { getThemeColors, getThemeCompColors, resizeCanvas, toMath, drawGridAndAxes, renderCurve, attachPanZoom } from './render_engine.js';
+import { initTheme } from './theme.js';
 import { addLog, openConsole, updateEngineHUD } from './hud_logger.js';
 import { initFavorites, updateStarStatus, renderCategoryUI } from './favorites.js';
 import { initAICopilot } from './ai_copilot.js';
@@ -109,7 +110,7 @@ function renderStandard() {
   const ctx = cvStandard.getContext('2d');
   drawGridAndAxes(cvStandard, ctx, viewStandard);
   if (compiledFns[0]) {
-    renderCurve(cvStandard, ctx, viewStandard, compiledFns[0], colors[0], 2.4);
+    renderCurve(cvStandard, ctx, viewStandard, compiledFns[0], getThemeColors()[0], 2.4);
   }
 }
 
@@ -121,7 +122,7 @@ function renderDerivatives() {
     const v = viewsDeriv[i];
     drawGridAndAxes(cv, ctx, v);
     if (compiledFns[i]) {
-      renderCurve(cv, ctx, v, compiledFns[i], colors[i], 2.0);
+      renderCurve(cv, ctx, v, compiledFns[i], getThemeColors()[i % 6], 2.0);
     }
   }
 }
@@ -133,13 +134,13 @@ function renderSuperposition() {
 
     // Draw constituent components in dashed lines
     components.forEach((c, idx) => {
-      const cColor = compColors[idx % compColors.length];
+      const cColor = getThemeCompColors()[idx % getThemeCompColors().length];
       renderCurve(cvOverlay, ctx, viewOverlay, c.fn, cColor, 1.6, [4, 4]);
     });
 
     // Draw Composite function in solid line
     if (compiledFns[0]) {
-      renderCurve(cvOverlay, ctx, viewOverlay, compiledFns[0], colors[0], 2.6);
+      renderCurve(cvOverlay, ctx, viewOverlay, compiledFns[0], getThemeColors()[0], 2.6);
     }
   }
 
@@ -150,7 +151,7 @@ function renderSuperposition() {
     const ctx = cv.getContext('2d');
     const v = viewsComp[idx] || viewOverlay;
     drawGridAndAxes(cv, ctx, v);
-    const cColor = compColors[idx % compColors.length];
+    const cColor = getThemeCompColors()[idx % getThemeCompColors().length];
     renderCurve(cv, ctx, v, c.fn, cColor, 2.0);
   });
 }
@@ -355,9 +356,9 @@ function applyState(data) {
 function rebuildComponentCards() {
   if (!compCardsContainer) return;
   compCardsContainer.innerHTML = '';
-  let legendHtml = `<span style="color:${colors[0]};font-weight:bold;">— 合成 f(x)</span> `;
+  let legendHtml = `<span style="color:${getThemeColors()[0]};font-weight:bold;">— 合成 f(x)</span> `;
   components.forEach((c, idx) => {
-    const cColor = compColors[idx % compColors.length];
+    const cColor = getThemeCompColors()[idx % getThemeCompColors().length];
     legendHtml += `<span style="color:${cColor};margin-left:8px;">·· 分量 u${idx+1}: ${c.str}</span>`;
 
     const card = document.createElement('div');
@@ -424,6 +425,10 @@ if (btnLangToggle) {
   });
 }
 applyI18nToDOM();
+initTheme(() => {
+  rebuildComponentCards();
+  renderActiveTab();
+});
 
 initFavorites(submitFormula);
 initAICopilot((newState) => {

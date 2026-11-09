@@ -1,9 +1,20 @@
 /**
  * MathLab High-Performance Canvas Rendering Engine
+ * Theme-aware Grid, Axes, Tick Marks, and Adaptive Polyline Sampling
  */
+
+import { getActiveTheme } from './theme.js';
 
 export const colors = ['#38bdf8', '#10b981', '#a855f7', '#f59e0b', '#f43f5e', '#6366f1'];
 export const compColors = ['#a855f7', '#10b981', '#f59e0b', '#f43f5e', '#ec4899', '#14b8a6'];
+
+export function getThemeColors() {
+  return getActiveTheme().canvas.colors;
+}
+
+export function getThemeCompColors() {
+  return getActiveTheme().canvas.compColors;
+}
 
 let draggingTarget = null;
 let dragStart = { x: 0, y: 0 };
@@ -54,27 +65,33 @@ export function buildPolylines(cv, v, fn) {
 
   function getPoint(sx) {
     const mx = toMath(cv, v, sx, 0).x;
-    let my;
-    try { my = fn(mx); } catch (e) { my = NaN; }
-    if (my === null || isNaN(my) || !isFinite(my)) {
-      return { mx, my: null, sx, sy: null };
+    let my = null;
+    try {
+      const val = fn(mx);
+      if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
+        my = val;
+      }
+    } catch (e) {}
+
+    let sy = null;
+    if (my !== null) {
+      sy = toScreen(cv, v, mx, my).y;
     }
-    const s = toScreen(cv, v, mx, my);
-    return { mx, my, sx: s.x, sy: s.y };
+    return { sx, sy, mx, my };
   }
 
   function subdivide(p1, p2, depth) {
-    if (depth >= 9) return [p2];
-    const dx = Math.abs(p2.sx - p1.sx);
-    const dy = Math.abs(p2.sy - p1.sy);
-    if ((p1.my > 0 && p2.my < 0) || (p1.my < 0 && p2.my > 0)) {
-      if (dy > H * 0.85) return [];
-    }
-    if (dy > 1.5 || dx > 2.0) {
-      const midSx = (p1.sx + p2.sx) / 2.0;
+    if (depth >= 4) return [p2];
+    if (p1.my === null || p2.my === null) return [p2];
+
+    const dy = Math.abs(p1.sy - p2.sy);
+    const dx = Math.abs(p1.sx - p2.sx);
+
+    if (dy > 4 && dx > 0.5) {
+      const midSx = (p1.sx + p2.sx) / 2;
       const midP = getPoint(midSx);
       if (midP.my !== null) {
-        return subdivide(p1, midP, depth + 1).concat(subdivide(midP, p2, depth + 1));
+        return [...subdivide(p1, midP, depth + 1), ...subdivide(midP, p2, depth + 1)];
       }
     }
     return [p2];
@@ -121,13 +138,14 @@ export function drawGridAndAxes(cv, ctx, v) {
 
   ctx.clearRect(0, 0, W, H);
 
+  const theme = getActiveTheme();
   const mathMin = toMath(cv, v, 0, H);
   const mathMax = toMath(cv, v, W, 0);
   const origin = toScreen(cv, v, 0, 0);
 
-  // Grid
+  // Grid lines
   ctx.lineWidth = 1;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+  ctx.strokeStyle = theme.canvas.grid;
   ctx.beginPath();
   const rawSpanX = 60 / v.zoomX;
   const stepX = calcNiceStep(rawSpanX);
@@ -146,16 +164,16 @@ export function drawGridAndAxes(cv, ctx, v) {
   }
   ctx.stroke();
 
-  // Axes
+  // Primary Crosshair Axes
   ctx.lineWidth = 1.4;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+  ctx.strokeStyle = theme.canvas.axes;
   ctx.beginPath();
   ctx.moveTo(0, origin.y); ctx.lineTo(W, origin.y);
   ctx.moveTo(origin.x, 0); ctx.lineTo(origin.x, H);
   ctx.stroke();
 
-  // Ticks
-  ctx.fillStyle = '#64748b';
+  // Tick labels
+  ctx.fillStyle = theme.canvas.ticks;
   ctx.font = '9px monospace';
   const precisionX = stepX < 0.01 ? 4 : (stepX < 1 ? 2 : 1);
   const precisionY = stepY < 0.01 ? 4 : (stepY < 1 ? 2 : 1);

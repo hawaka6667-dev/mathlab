@@ -21,7 +21,12 @@
    - 支持实时置顶、同步保存至本地持久化文件与浏览器缓存。
 5. **多语言管理与术语定制 (i18n & Terminology)**:
    - 针对工程师与科研场景定制三语模态：`zh` (纯中文)、`en` (纯英文)、`zh-en` (高密度专业代码混用，如 *1阶 Derivative 导数*, *Critical Extrema 极值*)。
-6. **GitHub Pages 纯静态双模自适应**:
+6. **专业皮肤设计与夜间模式 (Themes & Night Mode Default)**:
+   - **深邃暗夜 (Dark - 默认)**: 高对比度护眼暗色，深蓝灰基板 + 荧光青/翡翠绿/霓虹紫曲线。
+   - **极致纯黑 (OLED)**: 纯黑 `#000000` 底色，适合 OLED 屏幕超高对比度与极限节能。
+   - **学术纸白 (Academic Light)**: 仿学术论文浅色纸底，搭配墨青坐标轴与高对比深色曲线，适合论文导出与投影。
+   - **科研深青 (Solarized Dark)**: 经典科学计算深青 `#002b36` 基底，搭载低疲劳色标。
+7. **GitHub Pages 纯静态双模自适应**:
    - 部署于 GitHub Pages 静态环境时，自动激活前端数值微分引擎 (`client_solver.js`)，零后端运行微积分曲线探索。
 
 ---
@@ -124,7 +129,8 @@ mathlab/
 │   ├── favorites.js           # 二级层级收藏夹交互与本地持久化
 │   ├── ai_copilot.js          # NotebookLM 风格 Copilot 侧边栏与 Action 药丸渲染
 │   ├── client_solver.js       # GitHub Pages 离线纯前端数值微积分自适应引擎
-│   └── i18n.js                # zh / en / zh-en 术语定制与动态多语言切换
+│   ├── i18n.js                # zh / en / zh-en 术语定制与动态多语言切换
+│   └── theme.js               # 皮肤系统与夜间模式 (Dark 默认 / OLED / Academic / Solarized)
 ├── server.py                  # Python 高性能后端 (SymPy 符号求解、微积分分析与 Gemini 调度)
 ├── mcp_server.py              # 全局 stdio JSON-RPC MCP 服务端
 ├── favorites.json             # 经典函数分析题库 (基础、教材、几何物理、奇点)

@@ -1,10 +1,16 @@
-:root {
+/* Design Tokens & Theme Palettes (Night Mode by Default) */
+:root, [data-theme="dark"] {
   --bg: #090d16;
   --panel: #111827;
   --panel-border: #1f2937;
   --card-bg: #0c1220;
+  --card-border: rgba(255, 255, 255, 0.08);
   --text: #f3f4f6;
   --text-muted: #9ca3af;
+  --input-bg: #030712;
+  --input-border: #374151;
+  --drawer-bg: rgba(15, 23, 42, 0.96);
+  --drawer-card: rgba(30, 41, 59, 0.7);
   --c0: #38bdf8;
   --c1: #10b981;
   --c2: #a855f7;
@@ -12,6 +18,67 @@
   --c4: #f43f5e;
   --c5: #6366f1;
 }
+
+[data-theme="oled"] {
+  --bg: #000000;
+  --panel: #050505;
+  --panel-border: #1a1a1a;
+  --card-bg: #000000;
+  --card-border: #262626;
+  --text: #ffffff;
+  --text-muted: #888888;
+  --input-bg: #080808;
+  --input-border: #333333;
+  --drawer-bg: rgba(0, 0, 0, 0.98);
+  --drawer-card: rgba(18, 18, 18, 0.85);
+  --c0: #00f0ff;
+  --c1: #00ff88;
+  --c2: #d000ff;
+  --c3: #ffb700;
+  --c4: #ff0055;
+  --c5: #7b00ff;
+}
+
+[data-theme="academic"] {
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --panel-border: #e2e8f0;
+  --card-bg: #ffffff;
+  --card-border: #cbd5e1;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --input-bg: #f1f5f9;
+  --input-border: #cbd5e1;
+  --drawer-bg: rgba(255, 255, 255, 0.98);
+  --drawer-card: #f8fafc;
+  --c0: #0284c7;
+  --c1: #059669;
+  --c2: #7c3aed;
+  --c3: #d97706;
+  --c4: #dc2626;
+  --c5: #4f46e5;
+}
+
+[data-theme="solarized"] {
+  --bg: #002b36;
+  --panel: #073642;
+  --panel-border: #586e75;
+  --card-bg: #002b36;
+  --card-border: rgba(147, 161, 161, 0.2);
+  --text: #93a1a1;
+  --text-muted: #657b83;
+  --input-bg: #073642;
+  --input-border: #586e75;
+  --drawer-bg: rgba(7, 54, 66, 0.98);
+  --drawer-card: rgba(88, 110, 117, 0.2);
+  --c0: #2aa198;
+  --c1: #859900;
+  --c2: #6c71c4;
+  --c3: #b58900;
+  --c4: #cb4b16;
+  --c5: #268bd2;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
@@ -84,8 +151,8 @@ header {
 .input-form {
   display: flex;
   align-items: center;
-  background: #1f2937;
-  border: 1px solid #374151;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   padding: 3px 6px 3px 10px;
   flex: 1;
@@ -109,8 +176,8 @@ input[type="text"] {
   width: 100%;
 }
 .btn {
-  background: #1f2937;
-  border: 1px solid #374151;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   color: var(--text);
   padding: 4px 10px;
   border-radius: 6px;
@@ -542,6 +609,7 @@ canvas {
   padding: 1px 4px;
   border-radius: 10px;
 }
+#btnThemeToggle,
 #btnLangToggle {
   background: rgba(30, 41, 59, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -556,6 +624,7 @@ canvas {
   gap: 4px;
   transition: all 0.15s ease;
 }
+#btnThemeToggle:hover,
 #btnLangToggle:hover {
   background: rgba(51, 65, 85, 0.9);
   border-color: #38bdf8;
