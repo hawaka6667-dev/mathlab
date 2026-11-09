@@ -336,6 +336,38 @@ TOOLS = [
         }
     },
     {
+        "name": "mathlab_set_theme",
+        "description": "Switch UI skin theme ('dark', 'oled', 'academic', 'solarized') on MathLab.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "theme": {
+                    "type": "string",
+                    "description": "Skin theme palette",
+                    "enum": ["dark", "oled", "academic", "solarized"],
+                    "default": "dark"
+                }
+            },
+            "required": ["theme"]
+        }
+    },
+    {
+        "name": "mathlab_set_locale",
+        "description": "Switch UI localization language ('en', 'zh', 'zh-en') on MathLab.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "locale": {
+                    "type": "string",
+                    "description": "Language code: 'en' (English), 'zh' (Chinese), or 'zh-en' (Code-Switching)",
+                    "enum": ["en", "zh", "zh-en"],
+                    "default": "en"
+                }
+            },
+            "required": ["locale"]
+        }
+    },
+    {
         "name": "mathlab_set_workbench_formula",
         "description": "Remotely update the active formula of the live MathLab Studio workbench on the user's screen.",
         "inputSchema": {
@@ -447,6 +479,26 @@ def handle_request(req):
             elif tool_name == "mathlab_set_term_density":
                 density = args.get("density", "bilingual")
                 res = {"status": "ok", "density": density, "message": f"Terminology density set to {density}"}
+                send_response({
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {
+                        "content": [{"type": "text", "text": json.dumps(res, ensure_ascii=False, indent=2)}]
+                    }
+                })
+            elif tool_name == "mathlab_set_theme":
+                theme = args.get("theme", "dark")
+                res = {"status": "ok", "theme": theme, "message": f"Theme set to {theme}"}
+                send_response({
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {
+                        "content": [{"type": "text", "text": json.dumps(res, ensure_ascii=False, indent=2)}]
+                    }
+                })
+            elif tool_name == "mathlab_set_locale":
+                loc = args.get("locale", "en")
+                res = {"status": "ok", "locale": loc, "message": f"Locale set to {loc}"}
                 send_response({
                     "jsonrpc": "2.0",
                     "id": msg_id,

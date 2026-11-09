@@ -3,11 +3,11 @@
  */
 
 import { getThemeColors, getThemeCompColors, resizeCanvas, toMath, drawGridAndAxes, renderCurve, attachPanZoom } from './render_engine.js';
-import { initTheme, updateThemeButtonText } from './theme.js';
+import { initTheme, setTheme, updateThemeButtonText } from './theme.js';
 import { addLog, openConsole, updateEngineHUD } from './hud_logger.js';
 import { initFavorites, updateStarStatus, renderCategoryUI } from './favorites.js';
 import { initAICopilot } from './ai_copilot.js';
-import { t, getLocale, cycleLocale, applyI18nToDOM } from './i18n.js';
+import { t, getLocale, setLocale, cycleLocale, applyI18nToDOM } from './i18n.js';
 import { solveClientSide } from './client_solver.js';
 import { initTermGlossary, updateAllTermElements } from './term_morpher.js';
 
@@ -441,7 +441,28 @@ initTheme(() => {
   renderActiveTab();
 });
 
-initTermGlossary();
+initTermGlossary();
+
+// Expose theme and locale control to window for Copilot and MCP control
+window.mathlabSetTheme = (themeId) => {
+  setTheme(themeId, () => {
+    rebuildComponentCards();
+    renderActiveTab();
+  });
+  return { status: "ok", theme: themeId };
+};
+
+window.mathlabSetLocale = (locale) => {
+  setLocale(locale, () => {
+    renderCategoryUI();
+    rebuildComponentCards();
+    renderActiveTab();
+    updateThemeButtonText();
+    updateStarStatus();
+    updateAllTermElements();
+  });
+  return { status: "ok", locale: locale };
+};
 initFavorites(submitFormula);
 initAICopilot((newState) => {
   if (exprInput) exprInput.value = newState.fn;

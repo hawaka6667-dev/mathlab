@@ -541,6 +541,30 @@ def handle_ai_chat(message: str, history: list, api_key: str):
         log_event("INFO", "AI_TOOL", f"AI set_term_density: {density}")
         return action["result"]
 
+    def tool_theme(theme: str):
+        if theme not in ["dark", "oled", "academic", "solarized"]:
+            theme = "dark"
+        action = {
+            "tool": "set_theme",
+            "args": {"theme": theme},
+            "result": f"已将界面主题切换至: {theme}"
+        }
+        actions_taken.append(action)
+        log_event("INFO", "AI_TOOL", f"AI set_theme: {theme}")
+        return action["result"]
+
+    def tool_locale(locale: str):
+        if locale not in ["en", "zh", "zh-en"]:
+            locale = "en"
+        action = {
+            "tool": "set_locale",
+            "args": {"locale": locale},
+            "result": f"已将界面语言切换至: {locale}"
+        }
+        actions_taken.append(action)
+        log_event("INFO", "AI_TOOL", f"AI set_locale: {locale}")
+        return action["result"]
+
     def tool_get_state():
         return {
             "formula": current_state.get("fn", ""),
@@ -566,7 +590,7 @@ def handle_ai_chat(message: str, history: list, api_key: str):
             )
 
             # Define functions for tool calling
-            tools_list = [tool_plot, tool_viewport, tool_bookmark, tool_get_state]
+            tools_list = [tool_plot, tool_viewport, tool_bookmark, tool_density, tool_theme, tool_locale, tool_get_state]
             config = types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 tools=tools_list,
@@ -598,6 +622,12 @@ def handle_ai_chat(message: str, history: list, api_key: str):
                         tool_viewport(fn_args.get("xCenter", 0), fn_args.get("yCenter", 0), fn_args.get("zoomX", 15), fn_args.get("zoomY", 0.35))
                     elif fn_name == "tool_bookmark" or fn_name == "bookmark_function":
                         tool_bookmark(fn_args.get("formula", ""), fn_args.get("title", "AI Bookmark"))
+                    elif fn_name == "tool_theme" or fn_name == "set_theme":
+                        tool_theme(fn_args.get("theme", "dark"))
+                    elif fn_name == "tool_locale" or fn_name == "set_locale":
+                        tool_locale(fn_args.get("locale", "en"))
+                    elif fn_name == "tool_density" or fn_name == "set_term_density":
+                        tool_density(fn_args.get("density", "bilingual"))
 
             if not reply_text:
                 if actions_taken:
@@ -685,7 +715,42 @@ def handle_ai_chat(message: str, history: list, api_key: str):
             f"> [!TIP]\n"
             f"> 铅直渐近线源于分母为 0 之代数奇点；水平与斜渐近线由 $x \\to \\pm\\infty$ 极限行为决定。"
         )
-    elif re.search(r'(?:密度|density|双语|bilingual|中英对照|互换|切换术语)', msg, re.I):
+    elif re.search(r'(?:皮肤|主题|theme|skin|暗夜|纯黑|oled|学术|academic|深青|solarized)', msg, re.I):
+        if re.search(r'(?:oled|纯黑|pitch)', msg, re.I):
+            th = "oled"
+            th_name = "Pitch Black (OLED)"
+        elif re.search(r'(?:学术|academic|纸白|light|浅色)', msg, re.I):
+            th = "academic"
+            th_name = "Academic Paper (Light)"
+        elif re.search(r'(?:深青|solarized)', msg, re.I):
+            th = "solarized"
+            th_name = "Solarized Dark"
+        else:
+            th = "dark"
+            th_name = "Deep Dark (Default)"
+        tool_theme(th)
+        reply = (
+            f"🎨 **UI 皮肤主题已动态切换为 `{th_name}`** (`{th}`)。\n\n"
+            f"- Canvas 画布坐标轴、网格与曲线调色板已自适应重绘。\n"
+            f"- 页面容器底色与毛玻璃浮层已同步刷新。"
+        )
+    elif re.search(r'(?:语言|language|locale|切为英文|切成英文|切为中文|切成中文|英语|english|中文|chinese|双语|混用|code-switching)', msg, re.I):
+        if re.search(r'(?:zh-en|双语|混用|code-switching|混合)', msg, re.I):
+            loc = "zh-en"
+            loc_name = "Code-Switching (zh-en)"
+        elif re.search(r'(?:中文|zh|chinese|汉语)', msg, re.I):
+            loc = "zh"
+            loc_name = "中文 (zh)"
+        else:
+            loc = "en"
+            loc_name = "English (en)"
+        tool_locale(loc)
+        reply = (
+            f"🌐 **界面本地化语言已切换为 `{loc_name}`** (`{loc}`)。\n\n"
+            f"- 顶部工具栏、微积分矩阵标签、抽屉与控制台已全部同步更新。\n"
+            f"- 动态图例与分量基底卡片已按目标语言就绪。"
+        )
+    elif re.search(r'(?:密度|density|中英对照|互换|切换术语)', msg, re.I):
         d_mode = "dense" if ("高密度" in msg or "中英对照" in msg) else ("compact" if ("紧凑" in msg or "精简" in msg) else "bilingual")
         tool_density(d_mode)
         reply = (

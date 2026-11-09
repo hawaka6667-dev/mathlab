@@ -83,6 +83,8 @@ MathLab 原生提供符合标准 JSON-RPC 2.0 stdio 协议的 **MCP 服务端** 
 | `mathlab_get_workbench_state` | *none* | 读取当前屏幕上运行中的 MathLab 画布视窗与当前激活公式。 |
 | `mathlab_set_workbench_formula` | `formula` (string) | 远程操纵并更新用户当前屏幕上的 MathLab 绘制公式。 |
 | `mathlab_set_term_density` | `density` (string) | 动态调控前端微积分术语展示密度 ('compact', 'dense', 'bilingual')。 |
+| `mathlab_set_theme` | `theme` (string) | 远程切换 UI 皮肤主题 ('dark', 'oled', 'academic', 'solarized')。 |
+| `mathlab_set_locale` | `locale` (string) | 远程切换界面国际化语言 ('en', 'zh', 'zh-en')。 |
 
 ---
 

@@ -160,6 +160,12 @@ export async function sendAIMessage(explicitText) {
         if (a.tool === 'set_term_density' && window.mathlabSetTermDensity) {
           window.mathlabSetTermDensity(a.args.density);
         }
+        if (a.tool === 'set_theme' && window.mathlabSetTheme) {
+          window.mathlabSetTheme(a.args.theme);
+        }
+        if (a.tool === 'set_locale' && window.mathlabSetLocale) {
+          window.mathlabSetLocale(a.args.locale);
+        }
       });
     }
 
