@@ -167,6 +167,8 @@ header {
   white-space: nowrap;
 }
 input[type="text"] {
+  flex: 1;
+  min-width: 0;
   background: transparent;
   border: none;
   outline: none;
@@ -962,3 +964,83 @@ canvas {
   gap: 8px;
 }
 
+
+/* ========================================================
+   Sidebar & Narrow Viewport Responsive Optimizations (< 768px)
+   ======================================================== */
+@media (max-width: 768px) {
+  header {
+    flex-wrap: wrap;
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  .brand {
+    font-size: 12px;
+  }
+  .tab-group {
+    margin-left: auto;
+  }
+  .tab-btn {
+    padding: 3px 6px;
+    font-size: 10.5px;
+  }
+  .input-form {
+    order: 2;
+    width: 100%;
+    max-width: 100%;
+    margin: 2px 0;
+    display: flex;
+  }
+  .input-form span {
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .status-readout {
+    order: 3;
+    margin-left: 0;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 4px;
+    overflow-x: visible;
+    padding-bottom: 2px;
+  }
+  #activeInspect {
+    display: none;
+  }
+  .btn {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+  .btn-random, #btnResetAll, #btnThemeToggle, #btnLangToggle {
+    padding: 3px 5px;
+    font-size: 10.5px;
+  }
+
+  /* Drawer panels full-width on mobile / sidebar */
+  #favsModal, #aiSidecar {
+    width: 100% !important;
+    right: -100% !important;
+  }
+  #favsModal.open, #aiSidecar.open {
+    right: 0 !important;
+  }
+}
+
+@media (max-width: 520px) {
+  #derivativesGrid {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+  }
+  #derivativesGrid .panel-card {
+    min-height: 180px;
+  }
+  #superpositionWrap {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 240px 1fr !important;
+  }
+  .super-overlay-card {
+    min-height: 220px;
+  }
+}

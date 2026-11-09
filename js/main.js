@@ -437,4 +437,11 @@ initAICopilot((newState) => {
 }, switchMode);
 
 resizeAll();
+if (window.ResizeObserver) {
+  const ro = new ResizeObserver(() => {
+    resizeAll();
+  });
+  const tabViews = document.getElementById('tabViews');
+  if (tabViews) ro.observe(tabViews);
+}
 pollState();
