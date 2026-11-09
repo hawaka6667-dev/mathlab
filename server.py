@@ -4,6 +4,7 @@ MathLab Server on Port 8080 with Universal LaTeX, Unicode Superscripts, and Mult
 """
 
 import sys
+import os
 import re
 import json
 import math
@@ -18,6 +19,9 @@ PORT = 8080
 DOC_ROOT = Path(r"f:\antigravity\math")
 
 transformations = standard_transformations + (implicit_multiplication_application,)
+
+# Gemini API Session Key Store
+gemini_session_key = os.environ.get("GEMINI_API_KEY", "")
 
 def normalize_math_text(s: str):
     s = s.strip()
@@ -343,6 +347,192 @@ def log_event(level: str, category: str, message: str, meta: dict = None):
     if len(server_logs) > 200:
         server_logs.pop(0)
 
+# Gemini AI Copilot Integration
+def handle_ai_chat(message: str, history: list, api_key: str):
+    global current_state, gemini_session_key
+    key = api_key or gemini_session_key or os.environ.get("GEMINI_API_KEY", "")
+    actions_taken = []
+    active_mode = None
+
+    def tool_plot(formula: str, mode: str = "superposition"):
+        nonlocal active_mode
+        global current_state
+        active_mode = mode
+        new_state = compute_symbolic(formula)
+        new_state["version"] = current_state.get("version", 0) + 1
+        current_state = new_state
+        action = {
+            "tool": "plot_function",
+            "args": {"formula": formula, "mode": mode},
+            "result": f"已成功绘制函数 {formula}，并切换至 {mode} 模态"
+        }
+        actions_taken.append(action)
+        log_event("INFO", "AI_TOOL", f"AI plot_function: {formula} ({mode})")
+        return action["result"]
+
+    def tool_viewport(xCenter: float, yCenter: float, zoomX: float = 15.0, zoomY: float = 0.35):
+        global current_state
+        current_state["suggested_view"] = {
+            "xCenter": float(xCenter),
+            "yCenter": float(yCenter),
+            "zoomX": float(zoomX),
+            "zoomY": float(zoomY)
+        }
+        current_state["version"] = current_state.get("version", 0) + 1
+        action = {
+            "tool": "adjust_viewport",
+            "args": {"xCenter": xCenter, "yCenter": yCenter, "zoomX": zoomX, "zoomY": zoomY},
+            "result": f"视窗已聚焦至坐标 ({xCenter}, {yCenter})"
+        }
+        actions_taken.append(action)
+        log_event("INFO", "AI_TOOL", f"AI adjust_viewport: ({xCenter}, {yCenter})")
+        return action["result"]
+
+    def tool_bookmark(formula: str, title: str):
+        fav_file = DOC_ROOT / "favorites.json"
+        favs = []
+        if fav_file.exists():
+            try: favs = json.loads(fav_file.read_text(encoding="utf-8"))
+            except Exception: pass
+        if not any(f.get("fn", "").strip() == formula.strip() for f in favs):
+            favs.insert(0, {"id": f"fav-{len(favs)+1}", "fn": formula.strip(), "title": title.strip(), "createdAt": "2026-11-09"})
+            fav_file.write_text(json.dumps(favs, indent=2, ensure_ascii=False), encoding="utf-8")
+        action = {
+            "tool": "bookmark_function",
+            "args": {"formula": formula, "title": title},
+            "result": f"已收藏函数: {title} ({formula})"
+        }
+        actions_taken.append(action)
+        log_event("INFO", "AI_TOOL", f"AI bookmark_function: {formula}")
+        return action["result"]
+
+    def tool_get_state():
+        return {
+            "formula": current_state.get("fn", ""),
+            "derivatives": current_state.get("formulas", []),
+            "parity": current_state.get("parity", ""),
+            "components": [c.get("str") for c in current_state.get("components", [])],
+            "viewport": current_state.get("suggested_view", {})
+        }
+
+    # 1. Attempt Gemini 3.8 Flash via google-genai SDK if key available
+    if key:
+        try:
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(api_key=key)
+            system_prompt = (
+                "You are MathLab Copilot, an expert applied mathematician and interactive math workbench assistant.\n"
+                "You have real-time tools to control the MathLab canvas. You can plot calculus functions, adjust viewports "
+                "to critical points (extrema, inflection points, asymptotes), decompose functions into Fourier/harmonic/additive components, "
+                "and save bookmarks. Always invoke tools when user asks to plot, examine, or explore functions. "
+                "Explain the analytical math intuition clearly using Markdown and LaTeX notation (e.g. $f(x) = x^2$)."
+            )
+
+            # Define functions for tool calling
+            tools_list = [tool_plot, tool_viewport, tool_bookmark, tool_get_state]
+            config = types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                tools=tools_list,
+                temperature=0.2
+            )
+
+            # Build conversation history
+            contents = []
+            for h in (history or []):
+                role = "user" if h.get("role") == "user" else "model"
+                contents.append(types.Content(role=role, parts=[types.Part.from_text(text=h.get("content", ""))]))
+            contents.append(types.Content(role="user", parts=[types.Part.from_text(text=message)]))
+
+            response = client.models.generate_content(
+                model="gemini-3.8-flash",
+                contents=contents,
+                config=config
+            )
+
+            reply_text = response.text or ""
+            # If function calls were generated, process any residual output
+            if response.function_calls:
+                for fc in response.function_calls:
+                    fn_name = fc.name
+                    fn_args = dict(fc.args) if fc.args else {}
+                    if fn_name == "tool_plot" or fn_name == "plot_function":
+                        tool_plot(fn_args.get("formula", ""), fn_args.get("mode", "superposition"))
+                    elif fn_name == "tool_viewport" or fn_name == "adjust_viewport":
+                        tool_viewport(fn_args.get("xCenter", 0), fn_args.get("yCenter", 0), fn_args.get("zoomX", 15), fn_args.get("zoomY", 0.35))
+                    elif fn_name == "tool_bookmark" or fn_name == "bookmark_function":
+                        tool_bookmark(fn_args.get("formula", ""), fn_args.get("title", "AI Bookmark"))
+
+            if not reply_text:
+                if actions_taken:
+                    reply_text = f"已完成画布操作：{actions_taken[-1]['result']}。"
+                else:
+                    reply_text = "操作已就绪。"
+
+            return {
+                "reply": reply_text,
+                "actions": actions_taken,
+                "mode": active_mode,
+                "state": current_state,
+                "engine": "gemini-3.8-flash"
+            }
+        except Exception as e:
+            log_event("WARN", "GEMINI_API", f"Gemini API invocation fallback: {e}")
+            # Fall through to local heuristic planner
+
+    # 2. Local Heuristic Planner (Instant Local Fallback when Key not configured or network issues)
+    msg = message.strip()
+    reply = ""
+
+    # Check for plot requests
+    m_plot = re.search(r'(?:画|绘制|看看|展示|plot|show|graph)\s*[:：=]?\s*([a-zA-Z0-9_\^\+\-\*/\(\)\\\{\}\s]+)', msg, re.I)
+    m_mode_deriv = re.search(r'(求导|导数|阶导|derivative)', msg)
+    m_mode_super = re.search(r'(分解|叠加|分量|superposition|harmonic|加性)', msg)
+    m_bookmark = re.search(r'(收藏|bookmark|存一下)', msg)
+
+    if m_plot:
+        fn_candidate = m_plot.group(1).strip()
+        # Clean trailing punctuation
+        fn_candidate = re.sub(r'[，。！？\s]+$', '', fn_candidate)
+        mode = "derivatives" if m_mode_deriv else ("superposition" if m_mode_super else "standard")
+        res = tool_plot(fn_candidate, mode)
+        reply = (
+            f"🎯 已为您在 **{mode}** 模态下绘制函数：`${fn_candidate}$`。\n\n"
+            f"- 分析：该函数已通过 SymPy 符号引擎求得 0~5 阶导数与基底分量，画布视窗已自动完成自适应对齐。"
+        )
+    elif m_mode_deriv:
+        active_mode = "derivatives"
+        reply = f"🔀 已为您切换至 **逐阶求导矩阵 (Derivatives Mode)**，展示当前函数 `${current_state.get('fn')}$` 的 0 至 5 阶解析导数。"
+    elif m_mode_super:
+        active_mode = "superposition"
+        comps = [c['str'] for c in current_state.get('components', [])]
+        reply = (
+            f"🧬 已切换至 **分量叠加与分解 (Superposition Mode)**。\n"
+            f"当前函数基底分量为：`{', '.join(comps)}`，左侧为实线合成波，右侧为独立基底卡片。"
+        )
+    elif m_bookmark:
+        tool_bookmark(current_state.get('fn', 'x'), f"收藏函数 {current_state.get('fn', 'x')}")
+        reply = f"⭐ 已将当前函数 `${current_state.get('fn')}$` 存入您的数学收藏夹。"
+    else:
+        reply = (
+            f"👋 您好！我是 MathLab 内置协同助手。\n\n"
+            f"您可以用自然语言与我交流，例如：\n"
+            f"- *“帮我画 x^2 + 4000/x 并分解加性分量”*\n"
+            f"- *“求导分析三次多项式 x^3 - 3*x”*\n"
+            f"- *“画一个有可去奇点的 sinc 函数 sin(x)/x”*\n\n"
+            f"> [!TIP]\n"
+            f"> 您可随时点击右上角 **🔑** 填入您的 Gemini API Key，即可解锁完整多轮复杂数理推演能力。"
+        )
+
+    return {
+        "reply": reply,
+        "actions": actions_taken,
+        "mode": active_mode,
+        "state": current_state,
+        "engine": "local-planner" if not key else "gemini-fallback"
+    }
+
 current_state = compute_symbolic(r"f(h) = h^{-2}")
 log_event("INFO", "ENGINE", "MathLab Engine Initialized with f(h) = h^-2")
 
@@ -390,10 +580,67 @@ class MathLabHandler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps(server_logs).encode("utf-8"))
             return
+        elif self.path.startswith("/api/ai/config"):
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "hasKey": bool(gemini_session_key or os.environ.get("GEMINI_API_KEY")),
+                "model": "gemini-3.8-flash"
+            }).encode("utf-8"))
+            return
         return super().do_GET()
 
     def do_POST(self):
-        global current_state, server_logs
+        global current_state, server_logs, gemini_session_key
+        if self.path == "/api/ai/config":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length)
+                data = json.loads(body.decode("utf-8"))
+                new_key = data.get("apiKey", "").strip()
+                if new_key:
+                    gemini_session_key = new_key
+                    log_event("INFO", "AI_CONFIG", "Gemini API Key configured successfully")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "ok", "hasKey": bool(gemini_session_key)}).encode("utf-8"))
+                return
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
+                return
+
+        if self.path == "/api/ai/chat":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                body = self.rfile.read(length)
+                data = json.loads(body.decode("utf-8"))
+                msg = data.get("message", "").strip()
+                hist = data.get("history", [])
+                api_k = data.get("apiKey", "").strip()
+                if api_k:
+                    gemini_session_key = api_k
+
+                log_event("INFO", "AI_CHAT", f"User chat prompt: '{msg}'")
+                ai_result = handle_ai_chat(msg, hist, gemini_session_key)
+
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps(ai_result).encode("utf-8"))
+                return
+            except Exception as e:
+                err_msg = str(e)
+                log_event("ERROR", "AI_CHAT", f"AI chat exception: {err_msg}")
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": err_msg}).encode("utf-8"))
+                return
         if self.path == "/api/logs/clear":
             server_logs = []
             self.send_response(200)

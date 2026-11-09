@@ -5,6 +5,7 @@
 import { colors, compColors, resizeCanvas, toMath, drawGridAndAxes, renderCurve, attachPanZoom } from './render_engine.js';
 import { addLog, openConsole, updateEngineHUD } from './hud_logger.js';
 import { initFavorites, updateStarStatus } from './favorites.js';
+import { initAICopilot } from './ai_copilot.js';
 
 // DOM References
 const tabBtns = document.querySelectorAll('.tab-btn');
@@ -391,7 +392,24 @@ async function pollState() {
 window.addEventListener('resize', resizeAll);
 setInterval(pollState, 1500);
 
+function switchMode(mode) {
+  if (!mode) return;
+  const tabMap = {
+    'standard': 'tab-standard',
+    'derivatives': 'tab-derivatives',
+    'superposition': 'tab-superposition'
+  };
+  const targetId = tabMap[mode] || mode;
+  const targetBtn = document.querySelector(`.tab-btn[data-tab="${targetId}"]`);
+  if (targetBtn) targetBtn.click();
+}
+
 // Bootstrap
 initFavorites(submitFormula);
+initAICopilot((newState) => {
+  if (exprInput) exprInput.value = newState.fn;
+  applyState(newState);
+}, switchMode);
+
 resizeAll();
 pollState();

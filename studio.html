@@ -32,6 +32,7 @@
 
     <div class="status-readout">
       <span id="activeInspect">Inspection: <b style="color: #64748b;">(Hover over plot)</b></span>
+      <button type="button" class="btn btn-ai" id="btnToggleAI" title="打开 NotebookLM 风格 Gemini AI 伴侣">🤖 AI 伴侣</button>
       <button type="button" class="btn btn-console" id="btnToggleConsole" title="打开/折叠诊断控制台 (快捷键: ~)">📟 控制台 <span id="logBadge" class="log-badge">0</span></button>
       <button type="button" class="btn btn-favs" id="btnOpenFavs" title="打开收藏夹">📑 收藏夹 (<span id="favCount">0</span>)</button>
       <button type="button" class="btn btn-random" id="btnRandom" title="随机摇一个经典分析学/微积分函数 (快捷键: R)">🎲 随机摇函数</button>
@@ -140,6 +141,65 @@
       </div>
     </div>
     <div class="console-body" id="consoleBody"></div>
+  </div>
+
+  <!-- AI Copilot Sidecar (NotebookLM / Drive AI Style) -->
+  <div id="aiSidecar">
+    <div class="ai-header">
+      <div class="ai-title">
+        <span>🤖</span>
+        <b>Gemini MathLab Copilot</b>
+        <span class="ai-badge" id="aiStatusBadge">Gemini 3.8 Flash</span>
+      </div>
+      <div class="ai-header-actions">
+        <button class="ai-icon-btn" id="btnConfigKey" title="设置 Gemini API Key">🔑</button>
+        <button class="ai-icon-btn" id="btnCloseAI" title="关闭侧边栏">✕</button>
+      </div>
+    </div>
+    
+    <div class="ai-chat-thread" id="aiChatThread">
+      <div class="ai-msg model">
+        <div class="ai-msg-bubble">
+          <div class="ai-text-content">
+            👋 欢迎使用 <b>MathLab Gemini 智能伴侣</b>！<br>
+            您可直接用自然语言让我操纵画布、切换模态、解释加性/乘性基底或聚焦极值奇点。
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Prompts Toolbar -->
+    <div class="ai-quick-prompts">
+      <div class="ai-quick-chip" data-prompt="画 x^2 + 4000/x 并分解基底">✨ x^2 + 4000/x 分解</div>
+      <div class="ai-quick-chip" data-prompt="求导分析三次多项式 x^3 - 3*x">📈 x^3 - 3x 导数分析</div>
+      <div class="ai-quick-chip" data-prompt="展示有界奇函数波动极值 x / (1 + x^2)">🔍 x/(1+x^2) 极值</div>
+      <div class="ai-quick-chip" data-prompt="收藏当前函数">⭐ 收藏当前</div>
+    </div>
+
+    <!-- AI Input Form -->
+    <div class="ai-input-form">
+      <input type="text" id="aiInput" placeholder="向 Gemini 发送指令，操纵画布或数学解析..." autocomplete="off">
+      <button class="ai-send-btn" id="btnSendAI">发送</button>
+    </div>
+  </div>
+
+  <!-- API Key Modal -->
+  <div id="apiKeyModal">
+    <div class="api-key-card">
+      <div class="api-key-header">
+        <span>🔑 配置 Gemini API Key</span>
+        <button class="close-btn" id="btnCloseKeyModal">✕</button>
+      </div>
+      <div class="api-key-body">
+        <p style="font-size:11px;color:#94a3b8;margin-bottom:8px;">
+          填入您的 Google Gemini API Key（本地私密保存于浏览器与运行时会话中，绝不上报第三方）。
+        </p>
+        <input type="password" id="apiKeyInput" placeholder="AIzaSy..." spellcheck="false">
+      </div>
+      <div class="api-key-footer">
+        <button class="btn" id="btnSaveKey" style="background:#7c3aed;color:#fff;border-color:#8b5cf6;">保存并生效</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modular Scripts Orchestration -->
