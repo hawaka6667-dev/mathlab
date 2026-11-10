@@ -1,7 +1,7 @@
-# 📋 MathLab v1.4.5 晨间 Review 指南 (Morning Review Guide)
+# 📋 SymStudio v1.5.0 晨间 Review 指南 (Morning Review Guide)
 
 > **项目地址**: [f:/antigravity/math](file:///f:/antigravity/math)  
-> **本地服务**: [http://127.0.0.1:8080](http://127.0.0.1:8080) (双击 `Run_MathLab.bat` 亦可启动)  
+> **本地服务**: [http://127.0.0.1:8080](http://127.0.0.1:8080) (双击 `Run_SymStudio.bat` 亦可启动)  
 > **GitHub Remote**: [https://github.com/hawaka6667-dev/mathlab](https://github.com/hawaka6667-dev/mathlab)  
 > **最新发布 Tag**: [`v1.4.5-math-intuition-tooltips`](https://github.com/hawaka6667-dev/mathlab/releases/tag/v1.4.5-math-intuition-tooltips)
 
@@ -31,7 +31,7 @@
 
 ### 3. 浏览器侧边栏 / 窄屏响应式 (Sidebar Responsive Layout)
 - [ ] 将浏览器窗口拉至侧边栏宽度（`< 768px` 或 `< 520px`）：
-  - Row 1: `MathLab :8080` + 导航标签栏紧凑居左。
+  - Row 1: `SymStudio :8080` + 导航标签栏紧凑居左。
   - Row 2: 公式输入框与 `↵ Plot`、`☆ Bookmark` 100% 满宽呈现。
   - Row 3: `🤖 AI Copilot`、`📟 Console`、`📑 Bookmarks`、主题与语言切换按钮紧凑环绕，无溢出遮挡。
 

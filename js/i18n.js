@@ -1,12 +1,12 @@
 /**
- * MathLab Internationalization & Terminology Management (i18n)
+ * SymStudio Internationalization & Terminology Management (i18n)
  * Dual-Mode: 'en' (Default English) <-> 'zh' (Chinese).
  * 'zh-en' has been deprecated.
  */
 
 export const DICTIONARY = {
   en: {
-    appTitle: "MathLab Studio",
+    appTitle: "SymStudio",
     subtitle: "Symbolic Calculus & Dynamic Math Exploration Workbench",
     placeholderExpr: "Enter formula, supports LaTeX, Unicode, Piecewise (e.g. x^2 + 4000/x, sin(x), x^3-3x)...",
     btnSubmit: "↵ Plot",
@@ -36,7 +36,7 @@ export const DICTIONARY = {
     favModalTitle: "⭐ Mathematical Bookmarks",
     favEmpty: "No bookmarks in this category",
     favPlotBtn: "⚡ Plot",
-    hudTitle: "MathLab HUD Diagnostics & Runtime Logger",
+    hudTitle: "SymStudio HUD Diagnostics & Runtime Logger",
     hudTabAll: "All Logs",
     hudTabAst: "AST Syntax Tree",
     hudTabSolver: "Calculus Solver",
@@ -45,7 +45,7 @@ export const DICTIONARY = {
     hudRefresh: "🔄 Refresh",
     hudClear: "🗑️ Clear",
     hudCopy: "📋 Copy",
-    aiWelcome: "👋 Welcome to <b>MathLab Gemini AI Copilot</b>!<br>Chat in natural language to manipulate viewports, switch tabs, compute Taylor series, or decompose basis wavelets.",
+    aiWelcome: "👋 Welcome to <b>SymStudio Gemini AI Copilot</b>!<br>Chat in natural language to manipulate viewports, switch tabs, compute Taylor series, or decompose basis wavelets.",
     chipTaylor: "✨ Taylor Series (O4)",
     chipCritical: "🔍 Extrema & Inflection",
     chipAsymptote: "📐 Find Asymptotes",
@@ -60,7 +60,7 @@ export const DICTIONARY = {
     langName: "🌐 English (en)"
   },
   zh: {
-    appTitle: "MathLab Studio",
+    appTitle: "SymStudio",
     subtitle: "符号微积分与动态数学探索工坊",
     placeholderExpr: "输入函数，支持 LaTeX、Unicode、分段函数 (例: x^2 + 4000/x, sin(x), x^3-3x)...",
     btnSubmit: "↵ 绘制",
@@ -90,7 +90,7 @@ export const DICTIONARY = {
     favModalTitle: "⭐ 我的数学收藏夹 (Favorites)",
     favEmpty: "该分类下暂无收藏公式",
     favPlotBtn: "⚡ 绘制",
-    hudTitle: "MathLab 运行诊断与系统日志",
+    hudTitle: "SymStudio 运行诊断与系统日志",
     hudTabAll: "全部 (All)",
     hudTabAst: "AST 符号树",
     hudTabSolver: "微积分求解",
@@ -99,7 +99,7 @@ export const DICTIONARY = {
     hudRefresh: "🔄 刷新",
     hudClear: "🗑️ 清空",
     hudCopy: "📋 复制",
-    aiWelcome: "👋 欢迎使用 <b>MathLab Gemini 智能伴侣</b>！<br>您可直接用自然语言让我操纵画布、切换模态、解释加性/乘性基底或聚焦极值奇点。",
+    aiWelcome: "👋 欢迎使用 <b>SymStudio Gemini 智能伴侣</b>！<br>您可直接用自然语言让我操纵画布、切换模态、解释加性/乘性基底或聚焦极值奇点。",
     chipTaylor: "✨ 4阶泰勒展开",
     chipCritical: "🔍 极值与拐点求解",
     chipAsymptote: "📐 探测全部渐近线",

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MathLab Server on Port 8080 with Universal LaTeX, Unicode Superscripts, and Multi-Variable Engine
+SymStudio Server on Port 8080 with Universal LaTeX, Unicode Superscripts, and Multi-Variable Engine
 """
 
 import sys
@@ -582,8 +582,8 @@ def handle_ai_chat(message: str, history: list, api_key: str):
 
             client = genai.Client(api_key=key)
             system_prompt = (
-                "You are MathLab Copilot, an expert applied mathematician and interactive math workbench assistant.\n"
-                "You have real-time tools to control the MathLab canvas. You can plot calculus functions, adjust viewports "
+                "You are SymStudio Copilot, an expert applied mathematician and interactive math workbench assistant.\n"
+                "You have real-time tools to control the SymStudio canvas. You can plot calculus functions, adjust viewports "
                 "to critical points (extrema, inflection points, asymptotes), decompose functions into Fourier/harmonic/additive components, "
                 "and save bookmarks. Always invoke tools when user asks to plot, examine, or explore functions. "
                 "Explain the analytical math intuition clearly using Markdown and LaTeX notation (e.g. $f(x) = x^2$)."
@@ -775,7 +775,7 @@ def handle_ai_chat(message: str, history: list, api_key: str):
     }
 
 current_state = compute_symbolic(r"f(h) = h^{-2}")
-log_event("INFO", "ENGINE", "MathLab Engine Initialized with f(h) = h^-2")
+log_event("INFO", "ENGINE", "SymStudio Engine Initialized with f(h) = h^-2")
 
 def get_assets_version():
     max_mtime = 0.0
@@ -790,7 +790,7 @@ def get_assets_version():
         pass
     return int(max_mtime)
 
-class MathLabHandler(SimpleHTTPRequestHandler):
+class SymStudioHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(DOC_ROOT), **kwargs)
 
@@ -1035,8 +1035,8 @@ class MathLabHandler(SimpleHTTPRequestHandler):
         self.end_headers()
 
 def run():
-    server = HTTPServer(("127.0.0.1", PORT), MathLabHandler)
-    print(f"MathLab Engine Running on http://127.0.0.1:{PORT}")
+    server = HTTPServer(("127.0.0.1", PORT), SymStudioHandler)
+    print(f"SymStudio Engine Running on http://127.0.0.1:{PORT}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
