@@ -45,15 +45,24 @@
   <!-- Tab Views Container -->
   <div id="tabViews">
 
-    <!-- Mode 1: 基础单图 -->
+    <!-- Mode 1: 基础单图 (Standard Single Plot) -->
     <div class="tab-content" id="tab-standard">
       <div id="standardWrap">
         <div class="panel-header" style="border-top: 2px solid var(--c0);">
           <span class="panel-formula" id="formStandard" style="color: var(--c0);">f(x)</span>
+          <div class="standard-header-tools">
+            <span id="standardParityBadge" class="prop-badge parity-pill">Symmetry: —</span>
+            <button type="button" class="btn-micro" id="btnStandardReset" title="Reset Viewport to Origin">🎯 (0,0)</button>
+          </div>
         </div>
         <div class="canvas-wrap">
           <canvas id="cvStandard"></canvas>
           <div class="mouse-tooltip" id="tipStandard"></div>
+          <div class="standard-telemetry-dock" id="standardTelemetryDock">
+            <div class="telem-item"><span class="telem-label">Probe:</span> <b id="telemCoords" class="telem-val">Hover over plot to probe</b></div>
+            <div class="telem-item"><span class="telem-label">Slope f'(x):</span> <b id="telemSlope" class="telem-val">—</b></div>
+            <div class="telem-item"><span class="telem-label">Curvature f''(x):</span> <b id="telemCurvature" class="telem-val">—</b></div>
+          </div>
         </div>
       </div>
     </div>

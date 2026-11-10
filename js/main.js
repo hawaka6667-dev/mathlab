@@ -278,9 +278,83 @@ function renderSuperposition() {
 
 }
 
-// Pan / Zoom Attachments
-
+// Pan / Zoom Attachments & Telemetry
 if (cvStandard) attachPanZoom(cvStandard, () => viewStandard, (v) => { viewStandard = v; }, renderStandard);
+
+const standardParityBadge = document.getElementById('standardParityBadge');
+const btnStandardReset = document.getElementById('btnStandardReset');
+const telemCoords = document.getElementById('telemCoords');
+const telemSlope = document.getElementById('telemSlope');
+const telemCurvature = document.getElementById('telemCurvature');
+
+if (btnStandardReset) {
+  btnStandardReset.addEventListener('click', (e) => {
+    e.stopPropagation();
+    viewStandard.xCenter = 0.0;
+    viewStandard.yCenter = 0.0;
+    renderStandard();
+  });
+}
+
+if (cvStandard) {
+  cvStandard.addEventListener('mousemove', (e) => {
+    const rect = cvStandard.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const math = toMath(cvStandard, viewStandard, mouseX, mouseY);
+    const xVal = math.x;
+    
+    let yVal = null;
+    let slopeVal = null;
+    let curveVal = null;
+
+    if (compiledFns[0]) {
+      try {
+        const y = compiledFns[0](xVal);
+        if (!isNaN(y) && isFinite(y)) yVal = y;
+      } catch (err) {}
+    }
+    if (compiledFns[1]) {
+      try {
+        const dy = compiledFns[1](xVal);
+        if (!isNaN(dy) && isFinite(dy)) slopeVal = dy;
+      } catch (err) {}
+    }
+    if (compiledFns[2]) {
+      try {
+        const d2y = compiledFns[2](xVal);
+        if (!isNaN(d2y) && isFinite(d2y)) curveVal = d2y;
+      } catch (err) {}
+    }
+
+    if (telemCoords) {
+      const yStr = yVal !== null ? yVal.toFixed(3) : 'undefined';
+      telemCoords.innerText = `${currentVar}: ${xVal.toFixed(3)}, f(${currentVar}): ${yStr}`;
+    }
+    if (telemSlope) {
+      telemSlope.innerText = slopeVal !== null ? slopeVal.toFixed(3) : '—';
+    }
+    if (telemCurvature) {
+      telemCurvature.innerText = curveVal !== null ? curveVal.toFixed(3) : '—';
+    }
+
+    if (tipStandard) {
+      tipStandard.style.display = 'block';
+      tipStandard.style.left = `${mouseX + 12}px`;
+      tipStandard.style.top = `${mouseY + 12}px`;
+      const yDisplay = yVal !== null ? yVal.toFixed(3) : 'undefined';
+      const sDisplay = slopeVal !== null ? `<div>f'(${currentVar}): <b>${slopeVal.toFixed(3)}</b></div>` : '';
+      tipStandard.innerHTML = `<div>${currentVar}: <b>${xVal.toFixed(3)}</b></div><div>f(${currentVar}): <b>${yDisplay}</b></div>${sDisplay}`;
+    }
+  });
+
+  cvStandard.addEventListener('mouseleave', () => {
+    if (tipStandard) tipStandard.style.display = 'none';
+    if (telemCoords) telemCoords.innerText = `Hover over plot to probe`;
+    if (telemSlope) telemSlope.innerText = '—';
+    if (telemCurvature) telemCurvature.innerText = '—';
+  });
+}
 
 canvasesDeriv.forEach((cv, idx) => {
 
@@ -528,12 +602,10 @@ function applyState(data) {
 
   }
 
-  if (data.parity && activeInspect) {
-
+  if (data.parity) {
     currentParity = data.parity;
-
-    activeInspect.innerHTML = `<span style="color:#38bdf8;">[${currentParity}]</span> Hover over plot to inspect`;
-
+    if (standardParityBadge) standardParityBadge.innerText = data.parity;
+    if (activeInspect) activeInspect.innerHTML = `<span style="color:#38bdf8;">[${currentParity}]</span> Hover over plot to inspect`;
   }
 
   // Update Titles

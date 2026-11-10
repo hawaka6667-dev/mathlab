@@ -424,12 +424,87 @@ input[type="text"] {
 /* Mode 1: Standard Plot (Single Fullscreen Canvas) */
 #standardWrap {
   flex: 1;
+  height: calc(100% - 12px);
+  display: flex;
+  flex-direction: column;
   position: relative;
   margin: 6px;
   background: var(--card-bg);
   border: 1px solid var(--panel-border);
   border-radius: 8px;
   overflow: hidden;
+}
+#standardWrap .canvas-wrap {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+.standard-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+.prop-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+}
+.parity-pill {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+.btn-micro {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-micro:hover {
+  background: #374151;
+  color: #fff;
+}
+.standard-telemetry-dock {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: ui-monospace, "JetBrains Mono", monospace;
+  font-size: 11px;
+  pointer-events: none;
+  z-index: 5;
+}
+.telem-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.telem-label {
+  color: #94a3b8;
+  font-size: 10px;
+}
+.telem-val {
+  color: #38bdf8;
+  font-weight: 600;
 }
 
 /* Mode 2: Derivatives (6-Grid Multi-Panel) */
