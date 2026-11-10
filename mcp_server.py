@@ -353,14 +353,14 @@ TOOLS = [
     },
     {
         "name": "mathlab_set_locale",
-        "description": "Switch UI localization language ('en', 'zh', 'zh-en') on MathLab.",
+        "description": "Switch UI localization language ('en', 'zh') on MathLab.",
         "inputSchema": {
             "type": "object",
             "properties": {
                 "locale": {
                     "type": "string",
                     "description": "Language code: 'en' (English), 'zh' (Chinese), or 'zh-en' (Code-Switching)",
-                    "enum": ["en", "zh", "zh-en"],
+                    "enum": ["en", "zh"],
                     "default": "en"
                 }
             },

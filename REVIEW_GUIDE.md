@@ -9,12 +9,12 @@
 
 ## 🎯 快速验收核心清单 (Checklist for Review)
 
-### 1. 默认纯英文与三语平滑切换 (i18n & Default English)
+### 1. 默认纯英文与双语平滑切换 (i18n & Default English)
 - [ ] **冷启动缺省验证**: 首次或无缓存打开页面，顶部导航、公式占位符、操作按钮与图例均为纯地道 English：
   - 顶部按钮：`↵ Plot`, `☆ Bookmark`, `🤖 AI Copilot`, `📟 Console 0`, `📑 Bookmarks (13)`, `🎲 Roll Function`, `🎯 Reset All`。
   - 皮肤指示：`🎨 Deep Dark (Default)`。
   - 语言指示：`🌐 English (en)`。
-- [ ] **三语无缝轮转**: 点击右上角 `🌐 English (en)`，按 `en` $\to$ `zh` (纯中文) $\to$ `zh-en` (工程代码混用) $\to$ `en` 循环切换，检查有无任何残留未翻译词。
+- [ ] **双语无缝切换**: 点击右上角 `🌐 English (en)`，按 `en` $\to$ `zh` (纯中文) $\to$ `zh-en` (工程代码混用) $\to$ `en` 循环切换，检查有无任何残留未翻译词。
 
 ### 2. 微积分专业术语悬浮与原位互换 (Term Tooltip & Morphing)
 - [ ] **双语互悬浮 (Cross Hover)**:
@@ -61,7 +61,7 @@
 
 | 模块 / 路径 | 核心关注点 |
 | :--- | :--- |
-| [`js/i18n.js`](file:///f:/antigravity/math/js/i18n.js) | 全量 i18n 字典，缺省置为 `en`，三语轮转调度 |
+| [`js/i18n.js`](file:///f:/antigravity/math/js/i18n.js) | 全量 i18n 字典，缺省置为 `en`，双语轮转调度 |
 | [`js/term_morpher.js`](file:///f:/antigravity/math/js/term_morpher.js) | 9 大微积分核心术语建模、悬浮气泡定位与点击原位翻转 |
 | [`js/theme.js`](file:///f:/antigravity/math/js/theme.js) | 4 套主题色标定义、Canvas 调色板映射与语言联动 |
 | [`js/ai_copilot.js`](file:///f:/antigravity/math/js/ai_copilot.js) | Copilot 接收 `set_theme`, `set_locale`, `set_term_density` 动作调度 |

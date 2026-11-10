@@ -554,7 +554,7 @@ def handle_ai_chat(message: str, history: list, api_key: str):
         return action["result"]
 
     def tool_locale(locale: str):
-        if locale not in ["en", "zh", "zh-en"]:
+        if locale not in ["en", "zh"]:
             locale = "en"
         action = {
             "tool": "set_locale",
@@ -734,11 +734,8 @@ def handle_ai_chat(message: str, history: list, api_key: str):
             f"- Canvas 画布坐标轴、网格与曲线调色板已自适应重绘。\n"
             f"- 页面容器底色与毛玻璃浮层已同步刷新。"
         )
-    elif re.search(r'(?:语言|language|locale|切为英文|切成英文|切为中文|切成中文|英语|english|中文|chinese|双语|混用|code-switching)', msg, re.I):
-        if re.search(r'(?:zh-en|双语|混用|code-switching|混合)', msg, re.I):
-            loc = "zh-en"
-            loc_name = "Code-Switching (zh-en)"
-        elif re.search(r'(?:中文|zh|chinese|汉语)', msg, re.I):
+    elif re.search(r'(?:语言|language|locale|切为英文|切成英文|切为中文|切成中文|英语|english|中文|chinese)', msg, re.I):
+        if re.search(r'(?:中文|zh|chinese|汉语)', msg, re.I):
             loc = "zh"
             loc_name = "中文 (zh)"
         else:

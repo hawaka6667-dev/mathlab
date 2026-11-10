@@ -6,7 +6,7 @@
 export const THEMES = {
   dark: {
     id: "dark",
-    name: { zh: "深邃暗夜 (默认)", en: "Deep Dark (Default)", "zh-en": "Deep Dark 暗夜 (默认)" },
+    name: { en: "Deep Dark (Default)", zh: "深邃暗夜 (默认)" },
     canvas: {
       grid: "rgba(255, 255, 255, 0.05)",
       axes: "rgba(255, 255, 255, 0.35)",
@@ -17,7 +17,7 @@ export const THEMES = {
   },
   oled: {
     id: "oled",
-    name: { zh: "极致纯黑 (OLED)", en: "Pitch Black (OLED)", "zh-en": "Pitch OLED 纯黑" },
+    name: { en: "Pitch Black (OLED)", zh: "极致纯黑 (OLED)" },
     canvas: {
       grid: "rgba(255, 255, 255, 0.08)",
       axes: "rgba(255, 255, 255, 0.50)",
@@ -28,7 +28,7 @@ export const THEMES = {
   },
   academic: {
     id: "academic",
-    name: { zh: "学术纸白 (Light)", en: "Academic Paper (Light)", "zh-en": "Academic 纸白 (Light)" },
+    name: { en: "Academic Paper (Light)", zh: "学术纸白 (浅色)" },
     canvas: {
       grid: "rgba(0, 0, 0, 0.06)",
       axes: "rgba(0, 0, 0, 0.45)",
@@ -39,7 +39,7 @@ export const THEMES = {
   },
   solarized: {
     id: "solarized",
-    name: { zh: "科研深青 (Solarized)", en: "Solarized Dark", "zh-en": "Solarized 深青" },
+    name: { en: "Solarized Dark", zh: "科研深青 (Solarized)" },
     canvas: {
       grid: "rgba(147, 161, 161, 0.08)",
       axes: "rgba(147, 161, 161, 0.38)",
@@ -89,7 +89,8 @@ export function updateThemeButtonText() {
   const btn = document.getElementById('btnThemeToggle');
   if (!btn) return;
   const theme = getActiveTheme();
-  const locale = localStorage.getItem('mathlab_locale') || 'en';
-  const name = theme.name[locale] || theme.name['zh-en'] || theme.id;
+  const rawLocale = localStorage.getItem('mathlab_locale');
+  const locale = rawLocale === 'zh' ? 'zh' : 'en';
+  const name = theme.name[locale] || theme.name.en || theme.id;
   btn.innerText = `🎨 ${name}`;
 }

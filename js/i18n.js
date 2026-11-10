@@ -1,6 +1,7 @@
 /**
  * MathLab Internationalization & Terminology Management (i18n)
- * Supports 'en' (Default English), 'zh' (Chinese), and 'zh-en' (Code-Switching Engineering Jargon)
+ * Dual-Mode: 'en' (Default English) <-> 'zh' (Chinese).
+ * 'zh-en' has been deprecated.
  */
 
 export const DICTIONARY = {
@@ -111,65 +112,16 @@ export const DICTIONARY = {
     apiKeyDesc: "填入您的 Google Gemini API Key（本地私密保存于浏览器与运行时会话中，绝不上报第三方）。",
     btnSaveKey: "保存并生效",
     langName: "🌐 中文 (zh)"
-  },
-  "zh-en": {
-    appTitle: "MathLab Studio",
-    subtitle: "Symbolic Calculus 符号微积分工坊",
-    placeholderExpr: "输入 Formula, 支持 LaTeX, Unicode, Piecewise (例: x^2 + 4000/x, sin(x))...",
-    btnSubmit: "↵ Plot 绘制",
-    btnSubmitTitle: "执行 Plot 绘制 (Enter)",
-    btnStar: "☆ Bookmark 收藏",
-    btnStarred: "★ Bookmarked 已存",
-    btnStarTitle: "Bookmark 收藏/取消当前函数",
-    btnFavs: "📑 Bookmarks 库",
-    btnFavsTitle: "打开 Bookmarks 收藏库",
-    btnResetAll: "🎯 Reset Viewport",
-    btnResetAllTitle: "Reset 重置全部 Viewport 视角",
-    btnConsole: "📟 HUD Console",
-    btnConsoleTitle: "打开/折叠 HUD Console (快捷键: ~)",
-    btnAI: "🤖 AI Copilot 伴侣",
-    btnAITitle: "打开 NotebookLM 风格 Gemini AI Copilot",
-    btnRandom: "🎲 Random 摇函数",
-    btnRandomTitle: "Random 随机摇经典函数 (快捷键: R)",
-    inspectLabel: "Inspection 探测:",
-    inspectHint: "(Hover 鼠标悬停画布)",
-    tabSuperposition: "🧬 Superposition 叠加态",
-    tabDerivatives: "🔀 逐阶求导 Matrix",
-    tabStandard: "📈 Standard 单图",
-    compositeLegend: "— Composite 合成 f(x)",
-    componentLegendPrefix: "·· Component 分量",
-    basisLabel: "Basis 基底",
-    superOverlayTitle: "[Composite 合成 & Basis 叠加]",
-    favModalTitle: "⭐ Math Bookmarks 收藏层级",
-    favEmpty: "当前 Category 暂无收藏项",
-    favPlotBtn: "⚡ Plot 载入",
-    hudTitle: "MathLab HUD Diagnostics & Runtime Logger",
-    hudTabAll: "All 全部",
-    hudTabAst: "AST 符号树",
-    hudTabSolver: "Calculus 求解",
-    hudTabApi: "Network API",
-    hudTabErrors: "Errors 异常告警",
-    hudRefresh: "🔄 Refresh 刷新",
-    hudClear: "🗑️ Clear 清空",
-    hudCopy: "📋 Copy 复制",
-    aiWelcome: "👋 欢迎使用 <b>MathLab Gemini AI Copilot</b>！<br>可通过自然语言操纵 Viewport、切换 Tabs、计算 Taylor Series 展开或 Decompose 拆解基底波包。",
-    chipTaylor: "✨ 4阶 Taylor 展开",
-    chipCritical: "🔍 Critical 极值与拐点",
-    chipAsymptote: "📐 Asymptotes 渐近线",
-    chipWave: "🌊 Damped Wave 阻尼衰减",
-    chipDecomp: "🧩 x^2 + 4000/x Decompose",
-    chipBookmark: "⭐ Bookmark 存入",
-    aiInputPlaceholder: "向 Gemini 发送指令, 操纵画布或数学解析 (Prompt)...",
-    btnSendAI: "Send 发送",
-    apiKeyTitle: "🔑 Configure Gemini API Key",
-    apiKeyDesc: "填入 Google Gemini API Key (本地存储于浏览器与运行时 Session, 安全不上报第三方)。",
-    btnSaveKey: "Save 保存生效",
-    langName: "🌐 Code-Switching (zh-en)"
   }
 };
 
-// Default to 'en' as requested
-let currentLocale = localStorage.getItem('mathlab_locale') || 'en';
+// Strict dual-mode: default to 'en', fallback if legacy 'zh-en' was stored
+let savedLocale = localStorage.getItem('mathlab_locale');
+if (savedLocale === 'zh-en' || !['en', 'zh'].includes(savedLocale)) {
+  savedLocale = 'en';
+  localStorage.setItem('mathlab_locale', 'en');
+}
+let currentLocale = savedLocale;
 
 export function getLocale() {
   return currentLocale;
@@ -181,23 +133,20 @@ export function t(key) {
 }
 
 export function setLocale(locale, onLocaleChange) {
-  if (DICTIONARY[locale]) {
-    currentLocale = locale;
-    localStorage.setItem('mathlab_locale', locale);
-    applyI18nToDOM();
-    if (onLocaleChange) onLocaleChange(currentLocale);
-  }
+  const target = locale === 'zh' ? 'zh' : 'en';
+  currentLocale = target;
+  localStorage.setItem('mathlab_locale', target);
+  applyI18nToDOM();
+  if (onLocaleChange) onLocaleChange(currentLocale);
 }
 
 export function cycleLocale(onLocaleChange) {
-  const locales = ['en', 'zh', 'zh-en'];
-  const nextIdx = (locales.indexOf(currentLocale) + 1) % locales.length;
-  setLocale(locales[nextIdx], onLocaleChange);
-  return locales[nextIdx];
+  const next = currentLocale === 'en' ? 'zh' : 'en';
+  setLocale(next, onLocaleChange);
+  return next;
 }
 
 export function applyI18nToDOM() {
-  // Update standard text & inputs
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.getAttribute('data-i18n');
     const trans = t(k);
@@ -210,7 +159,6 @@ export function applyI18nToDOM() {
     }
   });
 
-  // Update titles/tooltips
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
     const k = el.getAttribute('data-i18n-title');
     const trans = t(k);

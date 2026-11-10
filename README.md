@@ -20,7 +20,7 @@
    - 二级分类架构：`基础常备` (Basics)、`教材精选` (Textbook Classics)、`几何与物理` (Geometry & Waves)、`奇点与振荡` (Singularities)。
    - 支持实时置顶、同步保存至本地持久化文件与浏览器缓存。
 5. **多语言管理与术语定制 (i18n & Terminology)**:
-   - 针对工程师与科研场景定制三语模态：`zh` (纯中文)、`en` (纯英文)、`zh-en` (高密度专业代码混用，如 *1阶 Derivative 导数*, *Critical Extrema 极值*)。
+   - 双模快速切换：`en` (默认英文) 与 `zh` (纯中文)，彻底废弃复杂的 `zh-en` 混用，配合鼠标悬浮双语互译浮层达到最佳体验。
 6. **专业皮肤设计与夜间模式 (Themes & Night Mode Default)**:
    - **深邃暗夜 (Dark - 默认)**: 高对比度护眼暗色，深蓝灰基板 + 荧光青/翡翠绿/霓虹紫曲线。
    - **极致纯黑 (OLED)**: 纯黑 `#000000` 底色，适合 OLED 屏幕超高对比度与极限节能。
@@ -30,7 +30,7 @@
    - 部署于 GitHub Pages 静态环境时，自动激活前端数值微分引擎 (`client_solver.js`)，零后端运行微积分曲线探索。
 8. **微积分术语悬浮对照与原位互换 (Interactive Term Morphing & Density Control)**:
    - **交互悬浮翻译**: 鼠标悬浮专业微积分术语时展示双语对照浮层（`zh` 模式展示对应地道英文术语，`en` 模式展示中文标准译名，并配有极简微积分物理意义释义）。
-   - **原位点击互换 (Click-to-Swap)**: 在 `zh-en` 混用与双语模式下，点击术语可原位即时切换中/英主客次序。
+   - **无感非侵入式悬浮**: 悬浮直接呈现对应语言与微积分释义，移除侵入式点击拦截，保证 Tab 切换与按钮原生响应。
    - **Copilot & MCP 密度调控**: 对外暴露 `window.mathlabSetTermDensity` 与 MCP 工具 `mathlab_set_term_density`，支持 AI 伴侣根据用户习惯远程或指令动态调整页面术语紧凑度 (`compact` / `dense` / `bilingual`)。
 
 ---
@@ -84,7 +84,7 @@ MathLab 原生提供符合标准 JSON-RPC 2.0 stdio 协议的 **MCP 服务端** 
 | `mathlab_set_workbench_formula` | `formula` (string) | 远程操纵并更新用户当前屏幕上的 MathLab 绘制公式。 |
 | `mathlab_set_term_density` | `density` (string) | 动态调控前端微积分术语展示密度 ('compact', 'dense', 'bilingual')。 |
 | `mathlab_set_theme` | `theme` (string) | 远程切换 UI 皮肤主题 ('dark', 'oled', 'academic', 'solarized')。 |
-| `mathlab_set_locale` | `locale` (string) | 远程切换界面国际化语言 ('en', 'zh', 'zh-en')。 |
+| `mathlab_set_locale` | `locale` (string) | 远程切换界面国际化语言 ('en', 'zh')。 |
 
 ---
 
