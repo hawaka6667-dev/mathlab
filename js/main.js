@@ -4,8 +4,6 @@
 
  */
 
-
-
 import { getThemeColors, getThemeCompColors, resizeCanvas, toMath, drawGridAndAxes, renderCurve, attachPanZoom } from './render_engine.js';
 
 import { initTheme, setTheme, updateThemeButtonText } from './theme.js';
@@ -21,8 +19,6 @@ import { t, getLocale, setLocale, cycleLocale, applyI18nToDOM } from './i18n.js'
 import { solveClientSide } from './client_solver.js';
 
 import { initTermGlossary, updateAllTermElements } from './term_morpher.js';
-
-
 
 // DOM References
 
@@ -42,8 +38,6 @@ const btnResetAll = document.getElementById('btnResetAll');
 
 const btnRandom = document.getElementById('btnRandom');
 
-
-
 // Standard mode canvas
 
 const cvStandard = document.getElementById('cvStandard');
@@ -52,8 +46,6 @@ const tipStandard = document.getElementById('tipStandard');
 
 const formStandard = document.getElementById('formStandard');
 
-
-
 // Derivatives mode canvases
 
 const canvasesDeriv = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('cv' + i));
@@ -61,8 +53,6 @@ const canvasesDeriv = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('cv' +
 const tipsDeriv = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('tip' + i));
 
 const formRefsDeriv = [0, 1, 2, 3, 4, 5].map(i => document.getElementById('form' + i));
-
-
 
 // Superposition mode canvases
 
@@ -75,8 +65,6 @@ const formSuperOverlay = document.getElementById('formSuperOverlay');
 const overlayLegend = document.getElementById('overlayLegend');
 
 const compCardsContainer = document.getElementById('compCardsContainer');
-
-
 
 // Benchmark Function Bank for Random Roll
 
@@ -114,8 +102,6 @@ const randomFunctionBank = [
 
 ];
 
-
-
 let currentVar = 'x';
 
 let currentParity = '';
@@ -123,8 +109,6 @@ let currentParity = '';
 let currentTab = 'tab-superposition';
 
 let orderLabels = ["f(x)", "f'(x)", "f''(x)", "f'''(x)", "f⁽⁴⁾(x)", "f⁽⁵⁾(x)"];
-
-
 
 // Symbolic compiled expressions
 
@@ -135,8 +119,6 @@ let components = [];
 let compType = 'single';
 
 let envelopes = null;
-
-
 
 // Viewports
 
@@ -149,8 +131,6 @@ let viewOverlay = { xCenter: 15.0, yCenter: 600.0, zoomX: 12.0, zoomY: 0.25 };
 let viewsComp = [];
 
 let lastKnownVersion = -1;
-
-
 
 // Tab Switching
 
@@ -176,8 +156,6 @@ tabBtns.forEach(btn => {
 
 });
 
-
-
 function resizeAll() {
 
   resizeCanvas(cvStandard);
@@ -191,8 +169,6 @@ function resizeAll() {
   renderActiveTab();
 
 }
-
-
 
 function renderActiveTab() {
 
@@ -212,8 +188,6 @@ function renderActiveTab() {
 
 }
 
-
-
 function renderStandard() {
 
   if (!cvStandard) return;
@@ -229,8 +203,6 @@ function renderStandard() {
   }
 
 }
-
-
 
 function renderDerivatives() {
 
@@ -256,8 +228,6 @@ function renderDerivatives() {
 
 }
 
-
-
 function renderSuperposition() {
 
   if (cvOverlay) {
@@ -265,8 +235,6 @@ function renderSuperposition() {
     const ctx = cvOverlay.getContext('2d');
 
     drawGridAndAxes(cvOverlay, ctx, viewOverlay);
-
-
 
     // Draw constituent components in dashed lines
 
@@ -278,8 +246,6 @@ function renderSuperposition() {
 
     });
 
-
-
     // Draw Composite function in solid line
 
     if (compiledFns[0]) {
@@ -289,8 +255,6 @@ function renderSuperposition() {
     }
 
   }
-
-
 
   // Standalone Component Canvases
 
@@ -314,8 +278,6 @@ function renderSuperposition() {
 
 }
 
-
-
 // Pan / Zoom Attachments
 
 if (cvStandard) attachPanZoom(cvStandard, () => viewStandard, (v) => { viewStandard = v; }, renderStandard);
@@ -338,8 +300,6 @@ canvasesDeriv.forEach((cv, idx) => {
 
 if (cvOverlay) attachPanZoom(cvOverlay, () => viewOverlay, (v) => { viewOverlay = v; }, renderSuperposition);
 
-
-
 if (btnResetAll) {
 
   btnResetAll.addEventListener('click', () => {
@@ -358,8 +318,6 @@ if (btnResetAll) {
 
 }
 
-
-
 export function submitFormula(explicitVal) {
 
   const val = explicitVal || (exprInput ? exprInput.value.trim() : '');
@@ -374,13 +332,9 @@ export function submitFormula(explicitVal) {
 
   }
 
-
-
   const t0 = performance.now();
 
   addLog('INFO', 'API', `POST /api/plot payload: "${val}"`);
-
-
 
   fetch('/api/plot', {
 
@@ -468,8 +422,6 @@ export function submitFormula(explicitVal) {
 
 }
 
-
-
 if (formulaForm) {
 
   formulaForm.addEventListener('submit', (e) => {
@@ -481,8 +433,6 @@ if (formulaForm) {
   });
 
 }
-
-
 
 if (exprInput) {
 
@@ -499,8 +449,6 @@ if (exprInput) {
   });
 
 }
-
-
 
 // Random Roll
 
@@ -538,11 +486,7 @@ function rollRandomFunction() {
 
 }
 
-
-
 if (btnRandom) btnRandom.addEventListener('click', rollRandomFunction);
-
-
 
 window.addEventListener('keydown', (e) => {
 
@@ -555,8 +499,6 @@ window.addEventListener('keydown', (e) => {
   }
 
 });
-
-
 
 // State Update
 
@@ -594,8 +536,6 @@ function applyState(data) {
 
   }
 
-
-
   // Update Titles
 
   if (data.formulas && data.formulas.length >= 6) {
@@ -611,8 +551,6 @@ function applyState(data) {
     }
 
   }
-
-
 
   // Compile Functions
 
@@ -633,8 +571,6 @@ function applyState(data) {
     });
 
   }
-
-
 
   // Components Decomposition
 
@@ -658,11 +594,7 @@ function applyState(data) {
 
   }
 
-
-
   rebuildComponentCards();
-
-
 
   // Viewports
 
@@ -704,8 +636,6 @@ function applyState(data) {
 
   }
 
-
-
   updateEngineHUD('AST: READY', currentVar);
 
   updateStarStatus();
@@ -713,8 +643,6 @@ function applyState(data) {
   renderActiveTab();
 
 }
-
-
 
 function rebuildComponentCards() {
 
@@ -733,8 +661,6 @@ function rebuildComponentCards() {
     const compPrefix = t('componentLegendPrefix');
 
     legendHtml += `<span style="color:${cColor};margin-left:8px;">${compPrefix} u${idx+1}: ${c.str}</span>`;
-
-
 
     const card = document.createElement('div');
 
@@ -764,8 +690,6 @@ function rebuildComponentCards() {
 
     compCardsContainer.appendChild(card);
 
-
-
     const cv = card.querySelector('.cv-comp');
 
     resizeCanvas(cv);
@@ -779,8 +703,6 @@ function rebuildComponentCards() {
   if (overlayLegend) overlayLegend.innerHTML = legendHtml;
 
 }
-
-
 
 async function pollState() {
 
@@ -810,13 +732,9 @@ async function pollState() {
 
 }
 
-
-
 window.addEventListener('resize', resizeAll);
 
 setInterval(pollState, 1500);
-
-
 
 function switchMode(mode) {
 
@@ -840,49 +758,26 @@ function switchMode(mode) {
 
 }
 
-
-
 // Bootstrap
-
 const btnLangToggle = document.getElementById('btnLangToggle');
-
 if (btnLangToggle) {
-
   btnLangToggle.addEventListener('click', () => {
-
     cycleLocale(() => {
-
       renderCategoryUI();
-
       rebuildComponentCards();
-
       renderActiveTab();
-
       updateThemeButtonText();
-
       updateStarStatus();
-
-      updateAllTermElements();
-
     });
-
   });
-
 }
 
 applyI18nToDOM();
-
 updateThemeButtonText();
-
 initTheme(() => {
-
   rebuildComponentCards();
-
   renderActiveTab();
-
 });
-
-
 
 initTermGlossary();
 
@@ -903,38 +798,23 @@ window.mathlabSetLocale = (locale) => {
     renderActiveTab();
     updateThemeButtonText();
     updateStarStatus();
-    updateAllTermElements();
   });
   return { status: "ok", locale: loc };
 };
 
 initFavorites(submitFormula);
-
 initAICopilot((newState) => {
-
   if (exprInput) exprInput.value = newState.fn;
-
   applyState(newState);
-
 }, switchMode);
 
-
-
 resizeAll();
-
 if (window.ResizeObserver) {
-
   const ro = new ResizeObserver(() => {
-
     resizeAll();
-
   });
-
   const tabViews = document.getElementById('tabViews');
-
   if (tabViews) ro.observe(tabViews);
-
 }
 
 pollState();
-
