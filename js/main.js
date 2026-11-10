@@ -704,32 +704,29 @@ function rebuildComponentCards() {
 
 }
 
+let lastAssetVersion = null;
+
 async function pollState() {
-
   if (document.activeElement === exprInput) return;
-
   try {
-
     const res = await fetch('/api/state?t=' + Date.now());
-
     if (res.ok) {
-
       const data = await res.json();
-
-      if (data.version !== lastKnownVersion) {
-
-        lastKnownVersion = data.version;
-
-        if (exprInput) exprInput.value = data.fn;
-
-        applyState(data);
-
+      if (data.asset_version) {
+        if (lastAssetVersion && data.asset_version !== lastAssetVersion) {
+          console.log('[MathLab LiveReload] Assets updated on disk, refreshing sidebar...');
+          location.reload();
+          return;
+        }
+        lastAssetVersion = data.asset_version;
       }
-
+      if (data.version !== lastKnownVersion) {
+        lastKnownVersion = data.version;
+        if (exprInput) exprInput.value = data.fn;
+        applyState(data);
+      }
     }
-
   } catch (e) {}
-
 }
 
 window.addEventListener('resize', resizeAll);

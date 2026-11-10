@@ -777,6 +777,19 @@ def handle_ai_chat(message: str, history: list, api_key: str):
 current_state = compute_symbolic(r"f(h) = h^{-2}")
 log_event("INFO", "ENGINE", "MathLab Engine Initialized with f(h) = h^-2")
 
+def get_assets_version():
+    max_mtime = 0.0
+    try:
+        watch_dirs = [DOC_ROOT / "js", DOC_ROOT / "css", DOC_ROOT]
+        for d in watch_dirs:
+            if d.is_dir():
+                for f in d.iterdir():
+                    if f.is_file() and f.suffix in [".js", ".css", ".html"]:
+                        max_mtime = max(max_mtime, f.stat().st_mtime)
+    except Exception:
+        pass
+    return int(max_mtime)
+
 class MathLabHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(DOC_ROOT), **kwargs)
@@ -800,7 +813,9 @@ class MathLabHandler(SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
-            self.wfile.write(json.dumps(current_state).encode("utf-8"))
+            state_data = dict(current_state)
+            state_data["asset_version"] = get_assets_version()
+            self.wfile.write(json.dumps(state_data).encode("utf-8"))
             return
         elif self.path.startswith("/api/favorites"):
             favs_data = load_favorites_data()
